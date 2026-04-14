@@ -1,0 +1,21 @@
+@page
+@model webChat.Pages.Posts.IndexModel
+
+<h1>Posts</h1>
+
+@if (Model.Posts.Count == 0)
+{
+    <p>No posts found.</p>
+}
+else
+{
+    foreach (var post in Model.Posts)
+    {
+        <div>
+            <h3>@post.Title</h3>
+            <p>@post.Content</p>
+            <small>@post.CreatedAt</small>
+        </div>
+        <hr />
+    }
+}

@@ -1,0 +1,23 @@
+# Build
+**/bin/
+**/obj/
+
+# Rider / IntelliJ
+.idea/
+
+# Visual Studio
+.vs/
+
+# User files
+*.user
+*.suo
+
+# DB local
+*.db
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

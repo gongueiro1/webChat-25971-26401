@@ -1,0 +1,18 @@
+@page
+@model webChat.Pages.Posts.CreateModel
+
+<h1>Create Post</h1>
+
+<form method="post">
+    <div>
+        <label>Title</label>
+        <input asp-for="Post.Title" />
+    </div>
+
+    <div>
+        <label>Content</label>
+        <textarea asp-for="Post.Content"></textarea>
+    </div>
+
+    <button type="submit">Create</button>
+</form>
