@@ -13,4 +13,8 @@ public class Post
     public string Content { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+    public string UserId { get; set; } = string.Empty;
+
+    public string AuthorName { get; set; } = string.Empty;
 }

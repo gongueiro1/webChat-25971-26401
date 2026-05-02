@@ -12,4 +12,14 @@ public class ApplicationDbContext : IdentityDbContext
     }
 
     public DbSet<Post> Posts { get; set; }
+    public DbSet<Comment> Comments { get; set; }
+    public DbSet<PostLike> PostLikes { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        builder.Entity<PostLike>()
+            .HasKey(pl => new { pl.UserId, pl.PostId });
+    }
 }

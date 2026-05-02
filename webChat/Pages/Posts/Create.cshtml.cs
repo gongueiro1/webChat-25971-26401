@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using webChat.Data;
@@ -5,6 +7,7 @@ using webChat.Models;
 
 namespace webChat.Pages.Posts;
 
+[Authorize]
 public class CreateModel : PageModel
 {
     private readonly ApplicationDbContext _context;
@@ -25,6 +28,9 @@ public class CreateModel : PageModel
     {
         if (!ModelState.IsValid)
             return Page();
+
+        Post.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        Post.AuthorName = User.Identity?.Name ?? "Unknown";
 
         _context.Posts.Add(Post);
         await _context.SaveChangesAsync();
