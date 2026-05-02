@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace webChat.Pages;
 
-public class IndexModel : PageModel{
-    public void OnGet() {
+public class IndexModel : PageModel {
+    public IActionResult OnGet()
+    {
+        return RedirectToPage("/Posts/Index");
     }
 }

@@ -12,7 +12,7 @@ public class Post
     [Required]
     public string Content { get; set; } = string.Empty;
 
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public string UserId { get; set; } = string.Empty;
 

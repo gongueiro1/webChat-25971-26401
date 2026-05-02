@@ -6,7 +6,6 @@ using webChat.Models;
 
 namespace webChat.Pages.Posts;
 
-[Authorize]
 public class IndexModel : PageModel
 {
     private readonly ApplicationDbContext _context;
@@ -18,8 +17,7 @@ public class IndexModel : PageModel
         _context = context;
     }
 
-    public async Task OnGetAsync()
-    {
+    public async Task OnGetAsync() {
         Posts = await _context.Posts
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
