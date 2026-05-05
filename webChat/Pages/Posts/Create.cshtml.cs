@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using webChat.Data;
@@ -11,26 +12,39 @@ namespace webChat.Pages.Posts;
 public class CreateModel : PageModel
 {
     private readonly ApplicationDbContext _context;
+    private readonly UserManager<IdentityUser> _userManager;
 
     [BindProperty]
     public Post Post { get; set; } = new();
 
-    public CreateModel(ApplicationDbContext context)
+    public CreateModel(ApplicationDbContext context, UserManager<IdentityUser> userManager)
     {
         _context = context;
+        _userManager = userManager;
     }
 
-    public void OnGet()
+    public async Task<IActionResult> OnGetAsync()
     {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
+            return Forbid();
+
+        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync()
     {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
+            return Forbid();
+
         if (!ModelState.IsValid)
             return Page();
 
-        Post.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-        Post.AuthorName = User.Identity?.Name ?? "Unknown";
+        Post.UserId = user.Id;
+        Post.AuthorName = user.UserName ?? "Unknown";
 
         _context.Posts.Add(Post);
         await _context.SaveChangesAsync();
