@@ -17,4 +17,6 @@ public class Post
     public string UserId { get; set; } = string.Empty;
 
     public string AuthorName { get; set; } = string.Empty;
+    
+    public string? ProfileImage { get; set; }
 }

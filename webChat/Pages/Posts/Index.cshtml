@@ -1,23 +1,32 @@
 @page
 @model webChat.Pages.Posts.IndexModel
+<div class="posts-wrapper">
 
-
-
-@if (Model.Posts.Count == 0)
-{
-    <p>No posts found.</p>
-}
-else
-{
-    foreach (var post in Model.Posts)
+    @if (Model.Posts.Count == 0)
     {
-        <div class="container" style="max-width: 700px;">
-            <div class="card mb-3 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">@post.Title</h5>
-                    <p class="card-text">@post.CreatedAt</p>
-                </div>
-            </div>
-        </div>
+        <p>No posts found.</p>
     }
-}
+    else
+    {
+        @foreach (var post in Model.Posts)
+        {
+            <div class="post-card">
+
+                <div class="post-header">
+                    <img src="/images/avatars/default-avatar.png" class="avatar" alt="avatar" />
+                    <span class="username">@post.AuthorName</span>
+                </div>
+
+                <div class="post-title">
+                    @post.Title
+                </div>
+
+                <div class="post-date">
+                    @post.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                </div>
+
+            </div>
+        }
+    }
+
+</div>

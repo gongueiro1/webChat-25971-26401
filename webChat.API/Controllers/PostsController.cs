@@ -26,7 +26,10 @@ public class PostsController : ControllerBase
                 p.Title,
                 p.Content,
                 p.AuthorName,
-                p.CreatedAt
+                p.CreatedAt,
+
+                // imagem temporária
+                ProfileImage = "/images/avatars/default-avatar.png"
             })
             .ToListAsync();
 

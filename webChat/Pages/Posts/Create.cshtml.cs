@@ -49,6 +49,6 @@ public class CreateModel : PageModel
         _context.Posts.Add(Post);
         await _context.SaveChangesAsync();
 
-        return RedirectToPage("Index");
+        return RedirectToPage("./Index");
     }
 }
