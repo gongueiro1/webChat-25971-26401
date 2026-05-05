@@ -4,7 +4,7 @@ using webChat.Models;
 
 namespace webChat.Data;
 
-public class ApplicationDbContext : IdentityDbContext
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -21,5 +21,10 @@ public class ApplicationDbContext : IdentityDbContext
 
         builder.Entity<PostLike>()
             .HasKey(pl => new { pl.UserId, pl.PostId });
+
+        builder.Entity<Post>()
+            .HasOne(p => p.User)
+            .WithMany()
+            .HasForeignKey(p => p.UserId);
     }
 }

@@ -1,5 +1,6 @@
 @page
 @model webChat.Pages.Posts.IndexModel
+
 <div class="posts-wrapper">
 
     @if (Model.Posts.Count == 0)
@@ -8,12 +9,12 @@
     }
     else
     {
-        @foreach (var post in Model.Posts)
+        foreach (var post in Model.Posts)
         {
             <div class="post-card">
 
                 <div class="post-header">
-                    <img src="/images/avatars/default-avatar.png" class="avatar" alt="avatar" />
+                    <img src="@post.ProfileImage" class="avatar" alt="avatar" />
                     <span class="username">@post.AuthorName</span>
                 </div>
 

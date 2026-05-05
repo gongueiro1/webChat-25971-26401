@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +11,12 @@ namespace webChat.Pages.Posts;
 public class CreateModel : PageModel
 {
     private readonly ApplicationDbContext _context;
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly UserManager<ApplicationUser> _userManager;
 
     [BindProperty]
     public Post Post { get; set; } = new();
 
-    public CreateModel(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+    public CreateModel(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
     {
         _context = context;
         _userManager = userManager;
@@ -45,10 +44,11 @@ public class CreateModel : PageModel
 
         Post.UserId = user.Id;
         Post.AuthorName = user.UserName ?? "Unknown";
+        Post.CreatedAt = DateTime.UtcNow;
 
         _context.Posts.Add(Post);
         await _context.SaveChangesAsync();
 
-        return RedirectToPage("./Index");
+        return RedirectToPage("/Posts/Index");
     }
 }

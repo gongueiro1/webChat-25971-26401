@@ -19,17 +19,18 @@ public class PostsController : ControllerBase
     public async Task<IActionResult> GetPosts()
     {
         var posts = await _context.Posts
+            .Include(p => p.User)
             .OrderByDescending(p => p.CreatedAt)
             .Select(p => new
             {
                 p.Id,
                 p.Title,
                 p.Content,
-                p.AuthorName,
+                AuthorName = p.User != null ? p.User.UserName : p.AuthorName,
                 p.CreatedAt,
-
-                // imagem temporária
-                ProfileImage = "/images/avatars/default-avatar.png"
+                ProfileImage = p.User != null && p.User.ProfileImageUrl != null
+                    ? p.User.ProfileImageUrl
+                    : "/images/avatars/default-avatar.png"
             })
             .ToListAsync();
 

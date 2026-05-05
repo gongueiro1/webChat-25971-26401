@@ -1,14 +1,18 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
+@using webChat.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
 <ul class="navbar-nav">
-    @if (SignInManager.IsSignedIn(User)) {
+    @if (SignInManager.IsSignedIn(User))
+    {
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-page="/Posts/Create" class="btn btn-primary">New Post</a>
+            <a class="nav-link text-dark btn btn-primary" asp-page="/Posts/Create">New Post</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@UserManager.GetUserName(User)</a>
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+                @UserManager.GetUserName(User)
+            </a>
         </li>
         <li class="nav-item">
             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })">
@@ -16,7 +20,8 @@
             </form>
         </li>
     }
-    else {
+    else
+    {
         <li class="nav-item">
             <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
         </li>
