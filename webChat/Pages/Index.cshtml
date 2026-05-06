@@ -1,10 +1,57 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Página Inicial";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="row mt-4">
+    <!-- Coluna Esquerda: Feed Principal (Posts) -->
+    <div class="col-md-8">
+        
+        <!-- Exemplo de um Post 1 -->
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <small class="text-muted">Postado por u/userExemplo • há 2 horas</small>
+                <h4 class="card-title mt-2">Como centralizar uma div em CSS?</h4>
+                <p class="card-text">Estou a dar em maluco a tentar meter uma div no meio do ecrã. Alguém tem dicas?</p>
+                <hr />
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary">🔼 Upvote</button>
+                        <button class="btn btn-sm btn-outline-secondary">🔽 Downvote</button>
+                    </div>
+                    <a href="#" class="text-decoration-none text-muted">💬 12 Comentários</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exemplo de um Post 2 -->
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <small class="text-muted">Postado por u/gongueiro1 • há 5 horas</small>
+                <h4 class="card-title mt-2">O nosso novo projeto de WebChat!</h4>
+                <p class="card-text">Começámos a construir isto hoje. O login já funciona!</p>
+                <hr />
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary">🔼 Upvote</button>
+                        <button class="btn btn-sm btn-outline-secondary">🔽 Downvote</button>
+                    </div>
+                    <a href="#" class="text-decoration-none text-muted">💬 3 Comentários</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Coluna Direita: Sidebar -->
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body bg-light">
+                <h5 class="card-title">Sobre o webChat</h5>
+                <p class="card-text">A tua nova comunidade para partilhar ideias e falar de tópicos interessantes.</p>
+                <button class="btn btn-primary w-100 fw-bold">Criar Novo Post</button>
+            </div>
+        </div>
+    </div>
 </div>
