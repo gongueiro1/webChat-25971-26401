@@ -1,18 +1,48 @@
 @page
-@model webChat.Pages.Posts.CreateModel
+@model webChat.Pages.Posts.CreateModel 
+@{
+    ViewData["Title"] = "Criar Novo Post";
+}
 
-<h1>Create Post</h1>
-
-<form method="post">
-    <div>
-        <label>Title</label>
-        <input asp-for="Post.Title" />
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Escrever Novo Post</h4>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <div class="mb-4">
+                            <label asp-for="Post.Title" class="form-label fw-bold text-muted">Título do Post</label>
+                            <input asp-for="Post.Title" class="form-control form-control-lg" placeholder="Dá um título chamativo..." />
+                            <span asp-validation-for="Post.Title" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label asp-for="Post.Content" class="form-label fw-bold text-muted">Conteúdo</label>
+                            <textarea asp-for="Post.Content" class="form-control" rows="6" placeholder="O que estás a pensar partilhar hoje?"></textarea>
+                            <span asp-validation-for="Post.Content" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a asp-page="./Index" class="btn btn-outline-secondary px-4">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary px-5 fw-bold">
+                                Publicar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div>
-        <label>Content</label>
-        <textarea asp-for="Post.Content"></textarea>
-    </div>
-
-    <button type="submit">Create</button>
-</form>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

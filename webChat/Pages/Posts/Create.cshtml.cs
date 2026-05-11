@@ -1,54 +1,55 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Claims; // Obrigatório para ir buscar o ID do utilizador
 using webChat.Data;
 using webChat.Models;
 
-namespace webChat.Pages.Posts;
-
-[Authorize]
-public class CreateModel : PageModel
+namespace webChat.Pages.Posts
 {
-    private readonly ApplicationDbContext _context;
-    private readonly UserManager<ApplicationUser> _userManager;
-
-    [BindProperty]
-    public Post Post { get; set; } = new();
-
-    public CreateModel(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    public class CreateModel : PageModel
     {
-        _context = context;
-        _userManager = userManager;
-    }
+        private readonly ApplicationDbContext _context;
 
-    public async Task<IActionResult> OnGetAsync()
-    {
-        var user = await _userManager.GetUserAsync(User);
+        public CreateModel(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
-        if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
-            return Forbid();
-
-        return Page();
-    }
-
-    public async Task<IActionResult> OnPostAsync()
-    {
-        var user = await _userManager.GetUserAsync(User);
-
-        if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
-            return Forbid();
-
-        if (!ModelState.IsValid)
+        public IActionResult OnGet()
+        {
+            // Opcional mas recomendado: Se o gajo não estiver logado, manda-o para o Login!
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                return RedirectToPage("/Account/Login", new { area = "Identity" });
+            }
             return Page();
+        }
 
-        Post.UserId = user.Id;
-        Post.AuthorName = user.UserName ?? "Unknown";
-        Post.CreatedAt = DateTime.UtcNow;
+        [BindProperty]
+        public Post Post { get; set; } = default!;
 
-        _context.Posts.Add(Post);
-        await _context.SaveChangesAsync();
+        public async Task<IActionResult> OnPostAsync()
+        {
+            // 1. Ignorar os erros do UserId e AuthorName porque nós é que os vamos preencher agora
+            ModelState.Remove("Post.UserId");
+            ModelState.Remove("Post.AuthorName");
 
-        return RedirectToPage("/Posts/Index");
+            if (!ModelState.IsValid || _context.Posts == null || Post == null)
+            {
+                return Page();
+            }
+
+            // 2. A MÁGICA: Preencher quem é o dono do Post automaticamente!
+            Post.UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
+            Post.AuthorName = User.Identity?.Name ?? "Anónimo";
+            Post.CreatedAt = DateTime.UtcNow;
+
+            // 3. Guardar na Base de Dados
+            _context.Posts.Add(Post);
+            await _context.SaveChangesAsync();
+
+            // 4. Voltar para o Feed
+            return RedirectToPage("./Index");
+        }
     }
 }

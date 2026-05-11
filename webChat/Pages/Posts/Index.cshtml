@@ -1,33 +1,92 @@
 @page
 @model webChat.Pages.Posts.IndexModel
+@{
+    ViewData["Title"] = "Feed";
+}
 
-<div class="posts-wrapper">
-
-    @if (Model.Posts.Count == 0)
-    {
-        <p>No posts found.</p>
-    }
-    else
-    {
-        foreach (var post in Model.Posts)
-        {
-            <div class="post-card">
-
-                <div class="post-header">
-                    <img src="@post.ProfileImage" class="avatar" alt="avatar" />
-                    <span class="username">@post.AuthorName</span>
+<div class="container mt-4">
+    <div class="row">
+        
+        <div class="col-md-8">
+            
+            @if (Model.Posts == null || !Model.Posts.Any())
+            {
+                <div class="card shadow-sm border-0 rounded-3 text-center py-5">
+                    <div class="card-body text-muted">
+                        <h5 class="fw-bold">Nenhum post encontrado.</h5>
+                        <p>Sê o primeiro a quebrar o gelo e a partilhar algo!</p>
+                    </div>
                 </div>
+            }
+            else
+            {
+                @foreach (var post in Model.Posts)
+                {
+                    <div class="card mb-3 shadow-sm border-0 rounded-3">
+                        <div class="card-body">
+                            
+                            <div class="text-muted small mb-2 d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <img src="@(string.IsNullOrEmpty(post.ProfileImage) ? "/images/default-avatar.png" : post.ProfileImage)" 
+                                         alt="Avatar" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;" />
+                                    
+                                    <span>
+                                        Postado por <span class="fw-bold text-dark">u/@(string.IsNullOrEmpty(post.AuthorName) ? "Anonimo" : post.AuthorName)</span> 
+                                        • há @(Math.Round((DateTime.UtcNow - post.CreatedAt).TotalHours)) horas
+                                    </span>
+                                </div>
 
-                <div class="post-title">
-                    @post.Title
+                                @if (User.Identity.IsAuthenticated && post.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                                {
+                                    <div class="dropdown">
+                                        <button class="btn btn-link btn-sm text-muted p-0" type="button" data-bs-toggle="dropdown">
+                                            <i class="bi bi-three-dots fs-5"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                            <li>
+                                                <a class="dropdown-item" asp-page="./Edit" asp-route-id="@post.Id">
+                                                    <i class="bi bi-pencil-square me-2 text-primary"></i>Editar
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item text-danger" asp-page="./Delete" asp-route-id="@post.Id">
+                                                    <i class="bi bi-trash3 me-2"></i>Eliminar
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                }
+                            </div>
+                            
+                            <h5 class="card-title fw-bold text-dark mb-1">@post.Title</h5>
+                            <p class="card-text text-secondary mb-3">@post.Content</p>
+                            
+                            <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-2">
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary px-3"><i class="bi bi-caret-up-fill"></i> Upvote</button>
+                                    <button class="btn btn-sm btn-outline-secondary px-3"><i class="bi bi-caret-down-fill"></i> Downvote</button>
+                                </div>
+                                <div class="text-muted small">
+                                    <i class="bi bi-chat-left-text"></i> Comentários
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                }
+            }
+            
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded-3 bg-light sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h6 class="card-title fw-bold">Sobre o webChat</h6>
+                    <p class="card-text text-muted small">A tua nova comunidade para partilhar ideias e falar de tópicos interessantes.</p>
+                    <a asp-page="./Create" class="btn btn-primary w-100 fw-bold">Criar Novo Post</a>
                 </div>
-
-                <div class="post-date">
-                    @post.CreatedAt.ToString("dd/MM/yyyy HH:mm")
-                </div>
-
             </div>
-        }
-    }
-
+        </div>
+        
+    </div>
 </div>

@@ -1,57 +1,77 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Página Inicial";
+    ViewData["Title"] = "Home Page";
 }
 
-<div class="row mt-4">
-    <!-- Coluna Esquerda: Feed Principal (Posts) -->
-    <div class="col-md-8">
+<div class="container mt-4">
+    <div class="row">
         
-        <!-- Exemplo de um Post 1 -->
-        <div class="card mb-3 shadow-sm">
-            <div class="card-body">
-                <small class="text-muted">Postado por u/userExemplo • há 2 horas</small>
-                <h4 class="card-title mt-2">Como centralizar uma div em CSS?</h4>
-                <p class="card-text">Estou a dar em maluco a tentar meter uma div no meio do ecrã. Alguém tem dicas?</p>
-                <hr />
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <button class="btn btn-sm btn-outline-secondary">🔼 Upvote</button>
-                        <button class="btn btn-sm btn-outline-secondary">🔽 Downvote</button>
+        <div class="col-md-8">
+            
+            @if (Model.Posts == null || !Model.Posts.Any())
+            {
+                <div class="card shadow-sm border-0 rounded-3 text-center py-5">
+                    <div class="card-body text-muted">
+                        <h5 class="fw-bold">Nenhum post encontrado.</h5>
+                        <p>Sê o primeiro a quebrar o gelo e a partilhar algo!</p>
                     </div>
-                    <a href="#" class="text-decoration-none text-muted">💬 12 Comentários</a>
+                </div>
+            }
+            else
+            {
+                @foreach (var post in Model.Posts)
+                {
+                    <div class="card mb-3 shadow-sm border-0 rounded-3">
+                        <div class="card-body">
+                            
+                            <div class="text-muted small mb-2 d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <img src="@(string.IsNullOrEmpty(post.ProfileImage) ? "/images/default-avatar.png" : post.ProfileImage)" 
+                                         alt="Avatar" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;" />
+                                    
+                                    <span>
+                                        Postado por <span class="fw-bold text-dark">u/@(string.IsNullOrEmpty(post.AuthorName) ? "Anonimo" : post.AuthorName)</span> 
+                                        • há @(Math.Round((DateTime.UtcNow - post.CreatedAt).TotalHours)) horas
+                                    </span>
+                                </div>
+
+                                <div>
+                                    <a asp-page="/Posts/Delete" asp-route-id="@post.Id" class="btn btn-danger btn-sm fw-bold">
+                                        <i class="bi bi-trash3"></i> Apagar
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <h5 class="card-title fw-bold text-dark mb-1">@post.Title</h5>
+                            <p class="card-text text-secondary mb-3">@post.Content</p>
+                            
+                            <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-2">
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary px-3"><i class="bi bi-caret-up-fill"></i> Upvote</button>
+                                    <button class="btn btn-sm btn-outline-secondary px-3"><i class="bi bi-caret-down-fill"></i> Downvote</button>
+                                </div>
+                                <div class="text-muted small">
+                                    <i class="bi bi-chat-left-text"></i> Comentários
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                }
+            }
+            
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded-3 bg-light sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h6 class="card-title fw-bold">Sobre o webChat</h6>
+                    <p class="card-text text-muted small">A tua nova comunidade para partilhar ideias e falar de tópicos interessantes.</p>
+                    <a asp-page="/Posts/Create" class="btn btn-primary w-100 fw-bold">Criar Novo Post</a>
                 </div>
             </div>
         </div>
-
-        <!-- Exemplo de um Post 2 -->
-        <div class="card mb-3 shadow-sm">
-            <div class="card-body">
-                <small class="text-muted">Postado por u/gongueiro1 • há 5 horas</small>
-                <h4 class="card-title mt-2">O nosso novo projeto de WebChat!</h4>
-                <p class="card-text">Começámos a construir isto hoje. O login já funciona!</p>
-                <hr />
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <button class="btn btn-sm btn-outline-secondary">🔼 Upvote</button>
-                        <button class="btn btn-sm btn-outline-secondary">🔽 Downvote</button>
-                    </div>
-                    <a href="#" class="text-decoration-none text-muted">💬 3 Comentários</a>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Coluna Direita: Sidebar -->
-    <div class="col-md-4">
-        <div class="card shadow-sm">
-            <div class="card-body bg-light">
-                <h5 class="card-title">Sobre o webChat</h5>
-                <p class="card-text">A tua nova comunidade para partilhar ideias e falar de tópicos interessantes.</p>
-                <button class="btn btn-primary w-100 fw-bold">Criar Novo Post</button>
-            </div>
-        </div>
+        
     </div>
 </div>

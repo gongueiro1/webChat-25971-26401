@@ -1,0 +1,32 @@
+@page
+@model webChat.Pages.Posts.DeleteModel
+@{
+    ViewData["Title"] = "Eliminar Post";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar Eliminação</h5>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <p class="fs-5 mb-1">Tens a certeza que queres apagar este post?</p>
+                    <p class="fw-bold text-dark fs-4">"@Model.Post.Title"</p>
+                    <p class="text-muted small mb-4">Esta ação não pode ser desfeita e o post desaparecerá para sempre.</p>
+                    
+                    <form method="post">
+                        <input type="hidden" asp-for="Post.Id" />
+                        <div class="d-flex justify-content-center gap-3">
+                            <a asp-page="/Index" class="btn btn-outline-secondary px-4">Cancelar</a>
+                            <button type="submit" class="btn btn-danger px-4 fw-bold">
+                                <i class="bi bi-trash3 me-1"></i> Sim, Eliminar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
