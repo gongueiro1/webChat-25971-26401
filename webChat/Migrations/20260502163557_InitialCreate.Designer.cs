@@ -12,8 +12,13 @@ using webChat.Data;
 namespace webChat.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
+<<<<<<<< HEAD:webChat/Migrations/20260507182422_InitialFinal.Designer.cs
     [Migration("20260507182422_InitialFinal")]
     partial class InitialFinal
+========
+    [Migration("20260502163557_InitialCreate")]
+    partial class InitialCreate
+>>>>>>>> origin/feature/auth:webChat/Migrations/20260502163557_InitialCreate.Designer.cs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -274,9 +279,12 @@ namespace webChat.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+<<<<<<<< HEAD:webChat/Migrations/20260507182422_InitialFinal.Designer.cs
 
                     b.Property<string>("ProfileImage")
                         .HasColumnType("nvarchar(max)");
+========
+>>>>>>>> origin/feature/auth:webChat/Migrations/20260502163557_InitialCreate.Designer.cs
 
                     b.Property<string>("Title")
                         .IsRequired()
