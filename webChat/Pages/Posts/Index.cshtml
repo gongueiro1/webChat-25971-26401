@@ -13,8 +13,8 @@
             {
                 <div class="card shadow-sm border-0 rounded-3 text-center py-5">
                     <div class="card-body text-muted">
-                        <h5 class="fw-bold">Nenhum post encontrado.</h5>
-                        <p>Sê o primeiro a quebrar o gelo e a partilhar algo!</p>
+                        <h5 class="fw-bold">No posts found.</h5>
+                        <p>Be the first to break the ice and share something!</p>
                     </div>
                 </div>
             }
@@ -31,7 +31,7 @@
                                          alt="Avatar" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;" />
                                     
                                     <span>
-                                        Postado por <span class="fw-bold text-dark">u/@(string.IsNullOrEmpty(post.AuthorName) ? "Anonimo" : post.AuthorName)</span> 
+                                        Posted by <span class="fw-bold text-dark">@(string.IsNullOrEmpty(post.AuthorName) ? "Anonimo" : post.AuthorName)</span> 
                                         • há @(Math.Round((DateTime.UtcNow - post.CreatedAt).TotalHours)) horas
                                     </span>
                                 </div>
@@ -81,7 +81,7 @@
         <div class="col-md-4">
             <div class="card shadow-sm border-0 rounded-3 bg-light sticky-top" style="top: 20px;">
                 <div class="card-body">
-                    <h6 class="card-title fw-bold">Sobre o webChat</h6>
+                    <h6 class="card-title fw-bold">Sobre o Talkr.</h6>
                     <p class="card-text text-muted small">A tua nova comunidade para partilhar ideias e falar de tópicos interessantes.</p>
                     <a asp-page="./Create" class="btn btn-primary w-100 fw-bold">Criar Novo Post</a>
                 </div>

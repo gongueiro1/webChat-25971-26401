@@ -7,9 +7,6 @@
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <a class="nav-link text-dark btn btn-primary" asp-page="/Posts/Create">New Post</a>
-        </li>
-        <li class="nav-item">
             <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
                 @UserManager.GetUserName(User)
             </a>
