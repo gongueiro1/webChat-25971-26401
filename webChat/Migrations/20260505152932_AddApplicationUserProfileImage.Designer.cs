@@ -8,11 +8,11 @@ using webChat.Data;
 
 #nullable disable
 
-namespace webChat.Data.Migrations
+namespace webChat.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260414103244_AddForumModels")]
-    partial class AddForumModels
+    [Migration("20260505152932_AddApplicationUserProfileImage")]
+    partial class AddApplicationUserProfileImage
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
