@@ -79,13 +79,28 @@
         </div>
 
         <div class="col-md-4">
-            <div class="card shadow-sm border-0 rounded-3 bg-light sticky-top" style="top: 20px;">
+            <a asp-area=""
+               asp-page="/Privacy"
+               class="card shadow-sm border-0 rounded-3 bg-light sticky-top text-decoration-none text-dark d-block"
+               style="top: 20px;">
+
                 <div class="card-body">
-                    <h6 class="card-title fw-bold">Sobre o Talkr.</h6>
-                    <p class="card-text text-muted small">The forum where you can share your thoughts on your favorite topics!</p>
-                    <a asp-page="./Create" class="btn btn-primary w-100 fw-bold">Create new post</a>
+
+                    <h6 class="card-title fw-bold">
+                        Sobre o Talkr.
+                    </h6>
+
+                    <p class="card-text text-muted small">
+                        The forum where you can share your thoughts on your favorite topics!
+                    </p>
+
                 </div>
-            </div>
+            </a>
+
+            <a asp-page="./Create"
+               class="btn btn-primary w-100 fw-bold mt-2">
+                Create new post
+            </a>
         </div>
         
     </div>
