@@ -9,8 +9,10 @@ public class IndexModel : PageModel
 
     public async Task OnGetAsync()
     {
+        // O facto de estares a chamar a API significa que, se a API 
+        // devolver todos os posts, o teu feed já é global automaticamente!
         using var client = new HttpClient();
-
+        
         var response = await client.GetStringAsync("https://localhost:7202/api/posts");
 
         Posts = JsonSerializer.Deserialize<List<PostDto>>(response,
