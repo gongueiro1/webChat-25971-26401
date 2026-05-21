@@ -20,9 +20,13 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     })
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+// Regista o nosso serviço de emails
+builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, webChat.Services.EmailSender>();
+
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
+
 
 if (app.Environment.IsDevelopment())
 {
