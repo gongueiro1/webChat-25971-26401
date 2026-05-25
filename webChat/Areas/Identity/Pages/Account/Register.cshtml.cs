@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using webChat.Models;
 
@@ -64,14 +65,14 @@ namespace webChat.Areas.Identity.Pages.Account
             public string Email { get; set; }
 
             [Required]
-            [StringLength(100, ErrorMessage = "A {0} deve ter pelo menos {2} e no máximo {1} caracteres.", MinimumLength = 6)]
+            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
             public string Password { get; set; }
 
             [DataType(DataType.Password)]
-            [Display(Name = "Confirmar password")]
-            [Compare("Password", ErrorMessage = "A password e a confirmação não coincidem.")]
+            [Display(Name = "Confirm password")]
+            [Compare("Password", ErrorMessage = "Passwords do not match.")]
             public string ConfirmPassword { get; set; }
         }
 
@@ -88,6 +89,28 @@ namespace webChat.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
+                var normalizedEmail = Input.Email.ToUpper();
+
+                var emailAlreadyExists = await _userManager.Users
+                    .AnyAsync(u => u.NormalizedEmail == normalizedEmail);
+
+                if (emailAlreadyExists)
+                {
+                    ModelState.AddModelError(string.Empty, "An account with this email already exists.");
+                    return Page();
+                }
+
+                var normalizedUserName = Input.UserName.ToUpper();
+
+                var usernameAlreadyExists = await _userManager.Users
+                    .AnyAsync(u => u.NormalizedUserName == normalizedUserName);
+
+                if (usernameAlreadyExists)
+                {
+                    ModelState.AddModelError(string.Empty, "An account with this username already exists.");
+                    return Page();
+                }
+
                 var user = CreateUser();
 
                 await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
