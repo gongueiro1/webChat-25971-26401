@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -80,7 +81,10 @@ namespace webChat.Areas.Identity.Pages.Account
 
                 if (Input.Email.Contains("@"))
                 {
-                    user = await _userManager.FindByEmailAsync(Input.Email);
+                    var normalizedEmail = Input.Email.ToUpper();
+
+                    user = await _userManager.Users
+                        .FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail);
                 }
                 else
                 {

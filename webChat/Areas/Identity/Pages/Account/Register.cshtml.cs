@@ -85,6 +85,7 @@ namespace webChat.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
+
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             if (ModelState.IsValid)
@@ -114,7 +115,11 @@ namespace webChat.Areas.Identity.Pages.Account
                 var user = CreateUser();
 
                 await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
+
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+                // Avatar default
+                user.ProfileImageUrl = "/images/defaults/default-avatar.png";
 
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
@@ -123,24 +128,118 @@ namespace webChat.Areas.Identity.Pages.Account
                     _logger.LogInformation("User created a new account with password.");
 
                     var userId = await _userManager.GetUserIdAsync(user);
+
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
                     var callbackUrl = Url.Page(
                         "/Account/ConfirmEmail",
                         pageHandler: null,
-                        values: new { area = "Identity", userId, code, returnUrl },
+                        values: new
+                        {
+                            area = "Identity",
+                            userId,
+                            code,
+                            returnUrl
+                        },
                         protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    await _emailSender.SendEmailAsync(
+                        Input.Email,
+                        "Confirm your Talkr account",
+
+                        $@"
+<div style='font-family:Arial,sans-serif;background-color:#f5f5f5;padding:30px;'>
+
+    <div style='max-width:600px;
+                margin:auto;
+                background:white;
+                border-radius:12px;
+                padding:35px;
+                box-shadow:0 2px 10px rgba(0,0,0,0.08);'>
+
+        <h1 style='color:#5aa04e;
+                   margin-top:0;
+                   margin-bottom:10px;'>
+            Welcome to Talkr 👋
+        </h1>
+
+        <p style='font-size:16px;
+                  color:#333;
+                  line-height:1.6;'>
+            Thanks for creating your account.
+            Please confirm your email to start using Talkr.
+        </p>
+
+        <div style='margin:35px 0;'>
+
+            <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'
+               style='background-color:#5aa04e;
+                      color:white;
+                      padding:14px 24px;
+                      text-decoration:none;
+                      border-radius:8px;
+                      font-weight:bold;
+                      display:inline-block;
+                      font-size:15px;'>
+
+                Confirm Email
+
+            </a>
+
+        </div>
+
+        <p style='font-size:13px;
+                  color:#777;
+                  margin-bottom:8px;'>
+
+            If the button does not work, copy and paste this link into your browser:
+
+        </p>
+
+        <p style='font-size:13px;
+                  word-break:break-all;'>
+
+            <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>
+
+                {HtmlEncoder.Default.Encode(callbackUrl)}
+
+            </a>
+
+        </p>
+
+        <hr style='border:none;
+                   border-top:1px solid #eee;
+                   margin:30px 0;' />
+
+        <p style='font-size:12px;
+                  color:#999;
+                  line-height:1.5;'>
+
+            If you did not create this account,
+            you can safely ignore this email.
+
+        </p>
+
+    </div>
+
+</div>"
+                    );
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl });
+                        return RedirectToPage(
+                            "RegisterConfirmation",
+                            new
+                            {
+                                email = Input.Email,
+                                returnUrl
+                            });
                     }
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
+
                     return LocalRedirect(returnUrl);
                 }
 
@@ -161,8 +260,9 @@ namespace webChat.Areas.Identity.Pages.Account
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
-                                                    $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+                throw new InvalidOperationException(
+                    $"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+                    $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
             }
         }
 
@@ -170,7 +270,8 @@ namespace webChat.Areas.Identity.Pages.Account
         {
             if (!_userManager.SupportsUserEmail)
             {
-                throw new NotSupportedException("The default UI requires a user store with email support.");
+                throw new NotSupportedException(
+                    "The default UI requires a user store with email support.");
             }
 
             return (IUserEmailStore<ApplicationUser>)_userStore;
