@@ -17,6 +17,7 @@ body {
 }
 
 /* NAVBAR */
+
 .navbar {
   background-color: #ffffff !important;
   border-bottom: 1px solid #edeff1 !important;
@@ -36,7 +37,8 @@ body {
   color: #5f9e4f !important;
 }
 
-/* SIDEBAR (PROFILE MENU) */
+/* SIDEBAR */
+
 .nav-pills .nav-link {
   color: #1c1c1c !important;
   border-radius: 8px;
@@ -47,7 +49,6 @@ body {
   color: #5f9e4f !important;
 }
 
-/* ITEM ATIVO (REMOVE AZUL) */
 .nav-pills .nav-link.active,
 .nav-pills .show > .nav-link {
   background-color: #5f9e4f !important;
@@ -56,15 +57,26 @@ body {
 }
 
 /* CARDS */
+
 .card {
   background-color: #ffffff;
   border: 1px solid #edeff1 !important;
-  border-radius: 8px !important;
+  border-radius: 16px !important;
   box-shadow: none !important;
 }
 
 .card:hover {
   border-color: #d7dadc !important;
+}
+
+.post-card-hover {
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.post-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,.08) !important;
 }
 
 .card-header {
@@ -74,12 +86,8 @@ body {
   font-weight: 600;
 }
 
-/* caso ainda uses bg-primary noutros lados */
-.bg-primary {
-  background-color: #5f9e4f !important;
-}
+/* TEXT */
 
-/* TEXTOS */
 .text-muted {
   color: #787c7e !important;
 }
@@ -92,14 +100,14 @@ body {
   color: #1c1c1c !important;
 }
 
-/* BOTÕES BASE */
+/* BUTTONS */
+
 .btn {
-  border-radius: 20px;
+  border-radius: 999px;
   font-weight: 600;
   transition: all 0.15s ease;
 }
 
-/* BOTÃO PRINCIPAL (VERDE CLEAN) */
 .btn-primary {
   background-color: #5f9e4f;
   border-color: #5f9e4f;
@@ -118,7 +126,6 @@ body {
   transform: translateY(1px);
 }
 
-/* BOOTSTRAP ACTIVE OVERRIDE (remove azul ao clicar) */
 .btn-primary:active,
 .btn-primary.active,
 .show > .btn-primary.dropdown-toggle {
@@ -133,7 +140,6 @@ body {
   border-color: #3f6f33 !important;
 }
 
-/* BOTÕES OUTLINE */
 .btn-outline-secondary {
   border-color: #d7dadc;
   color: #54595d;
@@ -145,7 +151,6 @@ body {
   color: #1c1c1c;
 }
 
-/* REMOVE COMPLETAMENTE O AZUL (FOCUS) */
 .btn:focus,
 .btn:active:focus,
 .btn-primary:focus,
@@ -155,14 +160,14 @@ body {
   box-shadow: none !important;
 }
 
-/* FOCO SUAVE OPCIONAL (teclado/acessibilidade) */
 .btn:focus-visible {
   box-shadow: 0 0 0 0.06rem rgba(95, 158, 79, 0.25);
 }
 
 /* INPUTS */
+
 .form-control {
-  border-radius: 6px;
+  border-radius: 12px;
   border: 1px solid #d7dadc;
   background-color: #ffffff;
   color: #1c1c1c;
@@ -174,6 +179,7 @@ body {
 }
 
 /* PLACEHOLDERS */
+
 .form-floating > .form-control-plaintext::placeholder,
 .form-floating > .form-control::placeholder {
   color: #787c7e;
@@ -186,16 +192,90 @@ body {
 }
 
 /* FOOTER */
+
 .footer {
   background-color: #ffffff;
   border-top: 1px solid #edeff1 !important;
 }
 
 /* LOGO */
+
 .talkr-logo {
   font-family: "Times New Roman", serif;
   font-weight: 900;
   font-size: 1.5rem;
   letter-spacing: -1.5px;
-  color: #000000 !important;
+  color: #7fe053 !important;
+}
+
+/* PRIVACY */
+
+.privacy-container {
+  max-width: 850px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.privacy-card {
+  background: white;
+  border-radius: 22px;
+  padding: 45px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+}
+
+.privacy-card h1 {
+  font-size: 42px;
+  font-weight: 800;
+  margin-bottom: 15px;
+}
+
+.privacy-card .intro {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 35px;
+}
+
+.privacy-card section {
+  margin-bottom: 28px;
+}
+
+.privacy-card h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.privacy-card p {
+  color: #444;
+  line-height: 1.7;
+}
+
+.footer-note {
+  margin-top: 35px;
+  font-size: 14px;
+  color: #888;
+}
+
+/* PROFILE IMAGES */
+
+.profile-avatar,
+.post-avatar,
+.comment-avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.post-avatar {
+  width: 42px;
+  height: 42px;
+}
+
+.comment-avatar {
+  width: 34px;
+  height: 34px;
+}
+
+textarea.form-control {
+  resize: none;
 }

@@ -13,15 +13,27 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<Post> Posts { get; set; }
     public DbSet<Comment> Comments { get; set; }
-    public DbSet<PostLike> PostLikes { get; set; }
     public DbSet<Report> Reports { get; set; }
+    public DbSet<PostSupport> PostSupports { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<PostLike>()
-            .HasKey(pl => new { pl.UserId, pl.PostId });
+        builder.Entity<PostSupport>()
+            .HasKey(ps => new { ps.UserId, ps.PostId });
+
+        builder.Entity<PostSupport>()
+            .HasOne(ps => ps.User)
+            .WithMany()
+            .HasForeignKey(ps => ps.UserId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.Entity<PostSupport>()
+            .HasOne(ps => ps.Post)
+            .WithMany()
+            .HasForeignKey(ps => ps.PostId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<Post>()
             .HasOne(p => p.User)

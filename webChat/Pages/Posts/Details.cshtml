@@ -1,0 +1,126 @@
+@page "{id:int}"
+@model webChat.Pages.Posts.DetailsModel
+@{
+    ViewData["Title"] = "Discuss";
+}
+
+<div class="container mt-4" style="max-width: 850px;">
+
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+
+        <div class="card-body">
+
+            <div class="d-flex align-items-center mb-3">
+
+                <img src="@Model.Post.ProfileImage"
+                     class="post-avatar me-2" />
+
+                <div>
+
+                    <div class="fw-bold">
+                        @Model.Post.AuthorName
+                    </div>
+
+                    <div class="text-muted small">
+                        @Model.Post.CreatedAt.ToString("g")
+                    </div>
+
+                </div>
+
+            </div>
+
+            <h2 class="fw-bold mb-3">
+                @Model.Post.Title
+            </h2>
+
+            <p class="mb-0">
+                @Model.Post.Content
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+
+        <div class="card-body">
+
+            <form method="post">
+
+                <div class="mb-3">
+
+                    <textarea asp-for="NewComment"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Write your thoughts..."></textarea>
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-dark px-4 rounded-pill">
+                    Comment
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    @if (Model.Comments.Any())
+    {
+        @foreach (var comment in Model.Comments)
+        {
+            <div class="card shadow-sm border-0 rounded-4 mb-3">
+
+                <div class="card-body">
+
+                    <div class="d-flex align-items-center mb-3">
+
+                        <img src="@comment.ProfileImage"
+                             class="comment-avatar me-2" />
+
+                        <div>
+
+                            <div class="fw-bold">
+                                @comment.AuthorName
+                            </div>
+
+                            <div class="text-muted small">
+                                @comment.CreatedAt.ToString("g")
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-start">
+
+                        <p class="mb-0">
+                            @comment.Content
+                        </p>
+
+                        @if (comment.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                        {
+                            <form method="post"
+                                  asp-page-handler="DeleteComment"
+                                  asp-route-commentId="@comment.Id"
+                                  asp-route-id="@Model.Post.Id">
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-danger rounded-pill">
+                                    Delete
+                                </button>
+
+                            </form>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+    }
+
+</div>
