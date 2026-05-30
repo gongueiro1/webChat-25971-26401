@@ -31,12 +31,21 @@ public class DetailsModel : PageModel
 
     public async Task<IActionResult> OnGetAsync(int id)
     {
+        // 1. Juntar a tabela do Utilizador (.Include)
         var post = await _context.Posts
+            .Include(p => p.User) 
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (post == null)
         {
             return NotFound();
+        }
+
+        // 2. Passar a foto atual e o nome do Utilizador para o Post
+        if (post.User != null)
+        {
+            post.ProfileImage = post.User.ProfileImageUrl;
+            post.AuthorName = post.User.UserName; 
         }
 
         Post = post;

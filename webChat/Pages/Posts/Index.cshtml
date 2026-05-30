@@ -5,11 +5,8 @@
 }
 
 <div class="container mt-4">
-
     <div class="row">
-
         <div class="col-lg-8">
-
             @if (Model.Posts == null || !Model.Posts.Any())
             {
                 <div class="card shadow-sm border-0 rounded-4 text-center py-5">
@@ -24,17 +21,15 @@
                 @foreach (var post in Model.Posts)
                 {
                     <div class="card mb-3 shadow-sm border-0 rounded-4 post-card-hover">
-
                         <a asp-page="./Details"
                            asp-route-id="@post.Id"
                            class="text-decoration-none text-dark">
-
+                            
                             <div class="card-body">
-
                                 <div class="d-flex align-items-center mb-3">
-
-                                    <img src="@post.ProfileImage"
-                                         class="post-avatar me-2" />
+                                    <img src="@post.ProfileImage" 
+                                         class="post-avatar me-2 rounded-circle" 
+                                         style="width: 36px; height: 36px; object-fit: cover; flex-shrink: 0;" />
 
                                     <div>
                                         <div class="small text-muted">
@@ -45,36 +40,23 @@
                                             • há @((DateTime.UtcNow - post.CreatedAt).Hours) horas
                                         </div>
                                     </div>
-
                                 </div>
 
-                                <h3 class="fw-bold">
-                                    @post.Title
-                                </h3>
-
-                                <p class="mb-0 mt-3">
-                                    @post.Content
-                                </p>
-
+                                <h3 class="fw-bold">@post.Title</h3>
+                                <p class="mb-0 mt-3">@post.Content</p>
                             </div>
-
                         </a>
 
                         <div class="px-3 pb-3">
-
                             <hr />
-
                             <div class="d-flex gap-2 flex-wrap">
-
-                                <form method="post"
-                                      asp-page-handler="Support"
-                                      asp-route-id="@post.Id">
-
-                                    <button type="submit"
-                                            class="btn btn-sm btn-outline-primary px-4 rounded-pill">
+                                
+                                <form method="post" asp-page-handler="Support" asp-route-id="@post.Id">
+                                    <button type="submit" 
+                                            onclick="this.classList.replace('btn-outline-primary', 'btn-primary');"
+                                            class="btn btn-sm btn-outline-primary px-4 rounded-pill fw-bold transition-all">
                                         Support · @post.FormattedSupportCount
                                     </button>
-
                                 </form>
 
                                 <a asp-page="./Details"
@@ -85,53 +67,38 @@
 
                                 @if (post.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
                                 {
-                                    <form method="post"
-                                          asp-page-handler="DeletePost"
-                                          asp-route-id="@post.Id">
-
-                                        <button type="submit"
-                                                class="btn btn-sm btn-outline-danger rounded-pill">
+                                    <form method="post" asp-page-handler="DeletePost" asp-route-id="@post.Id">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">
                                             Delete
                                         </button>
-
                                     </form>
                                 }
-
                             </div>
-
                         </div>
-
                     </div>
                 }
             }
-
         </div>
 
         <div class="col-lg-4">
-
-            <div class="card border-0 shadow-sm rounded-4 mb-3">
-
+            
+            <a asp-area="" asp-page="/Privacy" 
+               class="card border-0 shadow-sm rounded-4 mb-3 text-decoration-none text-dark card-hover d-block" 
+               style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
                 <div class="card-body">
-
-                    <h3 class="fw-bold fs-4">
-                        Sobre o Talkr.
-                    </h3>
-
+                    <h3 class="fw-bold fs-4">Sobre o Talkr.</h3>
                     <p class="text-secondary mb-0">
                         The forum where you can share your thoughts on your favorite topics!
                     </p>
-
                 </div>
-
-            </div>
+            </a>
 
             <a asp-page="./Create"
-               class="btn btn-primary w-100 py-2 rounded-pill">
+               class="btn w-100 py-2 rounded-pill text-white fw-bold"
+               style="background-color: #a4ce3a; border-color: #a4ce3a;">
                 Create new post
             </a>
 
         </div>
-
     </div>
-
 </div>

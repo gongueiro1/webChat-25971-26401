@@ -1,14 +1,14 @@
-using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using webChat.Data;
+using webChat.Data; // <-- Preciso para aceder à Base de Dados
+using webChat.Models; // <-- Preciso para aceder à tabela PostSupport
 
 namespace webChat.Pages.Posts;
 
 public class IndexModel : PageModel
 {
+    // 1. Ligar o "cérebro" da página à Base de Dados
     private readonly ApplicationDbContext _context;
 
     public IndexModel(ApplicationDbContext context)
@@ -21,9 +21,8 @@ public class IndexModel : PageModel
     public async Task OnGetAsync()
     {
         using var client = new HttpClient();
-
         var response = await client.GetStringAsync("https://localhost:7202/api/posts");
-
+        
         Posts = JsonSerializer.Deserialize<List<PostDto>>(response,
             new JsonSerializerOptions
             {
@@ -31,68 +30,56 @@ public class IndexModel : PageModel
             }) ?? new List<PostDto>();
     }
 
+    // --- A MAGIA DO BOTÃO DE SUPPORT COMEÇA AQUI ---
     public async Task<IActionResult> OnPostSupportAsync(int id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (string.IsNullOrEmpty(userId))
+        // Descobre quem é o utilizador que está a clicar no botão
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        
+        // Se for um "fantasma" (sem login feito), manda-o para a página de Login
+        if (userId == null) 
         {
             return RedirectToPage("/Account/Login", new { area = "Identity" });
         }
 
-        using var client = new HttpClient();
+        // Vai à base de dados ver se ESTE utilizador já deu Support a ESTE post
+        var existingSupport = _context.PostSupports
+            .FirstOrDefault(s => s.PostId == id && s.UserId == userId);
 
-        await client.PostAsync(
-            $"https://localhost:7202/api/posts/{id}/support?userId={userId}",
-            null);
-
-        return RedirectToPage();
-    }
-
-    public async Task<IActionResult> OnPostDeletePostAsync(int id)
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        var post = await _context.Posts.FindAsync(id);
-
-        if (post == null)
+        if (existingSupport != null)
         {
-            return NotFound();
+            // Se já existia, significa que ele quer tirar o like (Unlike)
+            _context.PostSupports.Remove(existingSupport);
+        }
+        else
+        {
+            // Se não existia, cria um like novo!
+            _context.PostSupports.Add(new PostSupport 
+            { 
+                PostId = id, 
+                UserId = userId 
+            });
         }
 
-        if (post.UserId != userId)
-        {
-            return Forbid();
-        }
-
-        _context.Posts.Remove(post);
-
+        // Guarda as alterações na base de dados
         await _context.SaveChangesAsync();
 
+        // Faz refresh à página para mostrar o novo número de Supports
         return RedirectToPage();
     }
+    // -----------------------------------------------
 
     public class PostDto
     {
         public int Id { get; set; }
-
         public string Title { get; set; } = "";
-
         public string Content { get; set; } = "";
-
         public string AuthorName { get; set; } = "";
-
         public DateTime CreatedAt { get; set; }
-
         public string ProfileImage { get; set; } = "";
-
-        public int SupportCount { get; set; }
-
-        public string UserId { get; set; } = "";
-
-        public string FormattedSupportCount =>
-            SupportCount >= 1000000 ? $"{SupportCount / 1000000.0:0.#}M" :
-            SupportCount >= 1000 ? $"{SupportCount / 1000.0:0.#}k" :
-            SupportCount.ToString();
+        
+        // Estas variáveis precisam de existir para o HTML as conseguir ler
+        public int FormattedSupportCount { get; set; }
+        public string UserId { get; set; } 
     }
 }
