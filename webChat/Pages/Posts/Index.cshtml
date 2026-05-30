@@ -53,8 +53,7 @@
                                 
                                 <form method="post" asp-page-handler="Support" asp-route-id="@post.Id">
                                     <button type="submit" 
-                                            onclick="this.classList.replace('btn-outline-primary', 'btn-primary');"
-                                            class="btn btn-sm btn-outline-primary px-4 rounded-pill fw-bold transition-all">
+                                            class="btn btn-sm px-4 rounded-pill fw-bold transition-all @(post.IsSupportedByCurrentUser ? "btn-primary" : "btn-outline-primary")">
                                         Support · @post.FormattedSupportCount
                                     </button>
                                 </form>
