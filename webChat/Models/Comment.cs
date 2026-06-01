@@ -14,6 +14,8 @@ public class Comment
 
     public string? UserId { get; set; }
 
+    public ApplicationUser? User { get; set; }
+
     public string AuthorName { get; set; } = string.Empty;
 
     public string? ProfileImage { get; set; }

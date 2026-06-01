@@ -61,10 +61,11 @@
                                 <a asp-page="./Details"
                                    asp-route-id="@post.Id"
                                    class="btn btn-sm btn-outline-secondary px-4 rounded-pill">
-                                    Discuss
+                                    Discuss · @post.CommentCount
                                 </a>
 
-                                @if (post.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                                @if (User.Identity?.IsAuthenticated == true &&
+                                     post.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
                                 {
                                     <form method="post" asp-page-handler="DeletePost" asp-route-id="@post.Id">
                                         <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">

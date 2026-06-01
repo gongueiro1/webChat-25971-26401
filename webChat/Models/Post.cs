@@ -23,4 +23,5 @@ public class Post
     public string? ProfileImage { get; set; }
 
     public int SupportCount { get; set; }
+    public List<Comment> Comments { get; set; } = new();
 }

@@ -12,9 +12,9 @@
 
             <div class="d-flex align-items-center mb-3">
 
-                <img src="@(string.IsNullOrEmpty(Model.Post.ProfileImage) ? "/images/avatars/default-avatar.png" : Model.Post.ProfileImage)" 
-                     class="rounded-circle me-3" 
-                     style="width: 48px; height: 48px; object-fit: cover; flex-shrink: 0;" 
+                <img src="@(string.IsNullOrEmpty(Model.Post.ProfileImage) ? "/images/avatars/default-avatar.png" : Model.Post.ProfileImage)"
+                     class="rounded-circle me-3"
+                     style="width: 48px; height: 48px; object-fit: cover; flex-shrink: 0;"
                      alt="Avatar">
 
                 <div>
@@ -58,9 +58,10 @@
 
                 </div>
 
-                <button type="submit" class="btn rounded-pill px-4 text-white fw-bold mt-2" style="background-color: #a4ce3a; border-color: #a4ce3a;">
+                <button type="submit"
+                        class="btn btn-comment rounded-pill px-4 fw-bold mt-2">
                     Comment
-                </button>   
+                </button>
 
             </form>
 
@@ -78,13 +79,13 @@
 
                     <div class="d-flex align-items-center mb-3">
 
-                        <img src="@comment.ProfileImage"
+                        <img src="@(comment.User?.ProfileImageUrl ?? comment.ProfileImage ?? "/images/avatars/default-avatar.png")"
                              class="comment-avatar me-2" />
 
                         <div>
 
                             <div class="fw-bold">
-                                @comment.AuthorName
+                                @(comment.User?.UserName ?? comment.AuthorName)
                             </div>
 
                             <div class="text-muted small">
@@ -97,11 +98,12 @@
 
                     <div class="d-flex justify-content-between align-items-start">
 
-                        <p class="mb-0">
+                        <p class="mb-0 comment-content">
                             @comment.Content
                         </p>
 
-                        @if (comment.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                        @if (User.Identity?.IsAuthenticated == true &&
+                             comment.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
                         {
                             <form method="post"
                                   asp-page-handler="DeleteComment"
@@ -125,3 +127,35 @@
     }
 
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const commentBox = document.querySelector('textarea[name="NewComment"]');
+
+            if (!commentBox) return;
+
+            commentBox.addEventListener("keydown", function (e) {
+
+                if (e.key === "Enter" && !e.shiftKey) {
+
+                    e.preventDefault();
+
+                    const text = commentBox.value.trim();
+
+                    if (text.length === 0)
+                        return;
+
+                    const form = commentBox.closest("form");
+
+                    if (form) {
+                        form.submit();
+                    }
+                }
+
+            });
+
+        });
+    </script>
+}

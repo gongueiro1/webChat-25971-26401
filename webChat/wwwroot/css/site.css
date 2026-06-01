@@ -162,21 +162,24 @@ body {
 /* Botões verdes principais: Support ativo, Comment, Create */
 
 .btn-primary,
-.btn-create-post {
+.btn-create-post,
+.btn-comment {
   background-color: #5f9e4f !important;
   border-color: #5f9e4f !important;
   color: #ffffff !important;
 }
 
 .btn-primary:hover,
-.btn-create-post:hover {
+.btn-create-post:hover,
+.btn-comment:hover {
   background-color: #4e853f !important;
   border-color: #4e853f !important;
   color: #ffffff !important;
 }
 
 .btn-primary:active,
-.btn-create-post:active {
+.btn-create-post:active,
+.btn-comment:active {
   background-color: #3f6f33 !important;
   border-color: #3f6f33 !important;
   color: #ffffff !important;
@@ -344,4 +347,8 @@ textarea.form-control {
 .footer {
   background-color: #ffffff;
   border-top: 1px solid #edeff1 !important;
+}
+
+.comment-content {
+  white-space: pre-line;
 }

@@ -92,5 +92,6 @@ public class IndexModel : PageModel
         public int FormattedSupportCount { get; set; }
         public string UserId { get; set; } 
         public bool IsSupportedByCurrentUser { get; set; } 
+        public int CommentCount { get; set; }
     }
 }
