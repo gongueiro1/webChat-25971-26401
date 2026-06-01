@@ -21,7 +21,7 @@ public class IndexModel : PageModel
     {
         // 1. Vai buscar os posts à API
         using var client = new HttpClient();
-        var response = await client.GetStringAsync("https://localhost:7202/api/posts");
+        var response = await client.GetStringAsync("http://localhost:5030/api/posts");
         
         Posts = JsonSerializer.Deserialize<List<PostDto>>(response,
             new JsonSerializerOptions

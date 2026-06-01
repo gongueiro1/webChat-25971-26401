@@ -10,13 +10,19 @@ html {
   }
 }
 
+/* =========================
+   BASE
+========================= */
+
 body {
   margin-bottom: 60px;
   background-color: #f6f7f8;
   color: #1c1c1c;
 }
 
-/* NAVBAR */
+/* =========================
+   NAVBAR
+========================= */
 
 .navbar {
   background-color: #ffffff !important;
@@ -37,7 +43,19 @@ body {
   color: #5f9e4f !important;
 }
 
-/* SIDEBAR */
+/* Logo Talkr. */
+
+.talkr-logo {
+  font-family: "Times New Roman", serif;
+  font-weight: 900;
+  font-size: 1.5rem;
+  letter-spacing: -1.5px;
+  color: #5f9e4f !important;
+}
+
+/* =========================
+   SIDEBAR / PILLS
+========================= */
 
 .nav-pills .nav-link {
   color: #1c1c1c !important;
@@ -56,7 +74,9 @@ body {
   border-color: #5f9e4f !important;
 }
 
-/* CARDS */
+/* =========================
+   CARDS
+========================= */
 
 .card {
   background-color: #ffffff;
@@ -69,16 +89,6 @@ body {
   border-color: #d7dadc !important;
 }
 
-.post-card-hover {
-  transition: all 0.15s ease;
-  cursor: pointer;
-}
-
-.post-card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0.5rem 1rem rgba(0,0,0,.08) !important;
-}
-
 .card-header {
   background-color: #5f9e4f !important;
   border-bottom: none !important;
@@ -86,7 +96,33 @@ body {
   font-weight: 600;
 }
 
-/* TEXT */
+/* Cards dos posts */
+
+.post-card-hover {
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.post-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Card clicável lateral */
+
+.card-hover {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* =========================
+   TEXT
+========================= */
 
 .text-muted {
   color: #787c7e !important;
@@ -100,55 +136,14 @@ body {
   color: #1c1c1c !important;
 }
 
-/* BUTTONS */
+/* =========================
+   BUTTONS - BASE
+========================= */
 
 .btn {
   border-radius: 999px;
   font-weight: 600;
   transition: all 0.15s ease;
-}
-
-.btn-primary {
-  background-color: #5f9e4f;
-  border-color: #5f9e4f;
-  color: #ffffff;
-}
-
-.btn-primary:hover {
-  background-color: #4e853f;
-  border-color: #4e853f;
-  color: #ffffff;
-}
-
-.btn-primary:active {
-  background-color: #3f6f33;
-  border-color: #3f6f33;
-  transform: translateY(1px);
-}
-
-.btn-primary:active,
-.btn-primary.active,
-.show > .btn-primary.dropdown-toggle {
-  background-color: #3f6f33 !important;
-  border-color: #3f6f33 !important;
-  color: #ffffff !important;
-}
-
-.btn-check:active + .btn-primary,
-.btn-check:checked + .btn-primary {
-  background-color: #3f6f33 !important;
-  border-color: #3f6f33 !important;
-}
-
-.btn-outline-secondary {
-  border-color: #d7dadc;
-  color: #54595d;
-}
-
-.btn-outline-secondary:hover {
-  background-color: #f6f7f8;
-  border-color: #878a8c;
-  color: #1c1c1c;
 }
 
 .btn:focus,
@@ -164,7 +159,82 @@ body {
   box-shadow: 0 0 0 0.06rem rgba(95, 158, 79, 0.25);
 }
 
-/* INPUTS */
+/* Botões verdes principais: Support ativo, Comment, Create */
+
+.btn-primary,
+.btn-create-post {
+  background-color: #5f9e4f !important;
+  border-color: #5f9e4f !important;
+  color: #ffffff !important;
+}
+
+.btn-primary:hover,
+.btn-create-post:hover {
+  background-color: #4e853f !important;
+  border-color: #4e853f !important;
+  color: #ffffff !important;
+}
+
+.btn-primary:active,
+.btn-create-post:active {
+  background-color: #3f6f33 !important;
+  border-color: #3f6f33 !important;
+  color: #ffffff !important;
+  transform: translateY(1px);
+}
+
+.btn-primary.active,
+.show > .btn-primary.dropdown-toggle {
+  background-color: #3f6f33 !important;
+  border-color: #3f6f33 !important;
+  color: #ffffff !important;
+}
+
+/* Support quando ainda não está clicado */
+
+.btn-outline-primary {
+  color: #5f9e4f !important;
+  border-color: #5f9e4f !important;
+  background-color: #ffffff !important;
+}
+
+.btn-outline-primary:hover {
+  color: #ffffff !important;
+  background-color: #5f9e4f !important;
+  border-color: #5f9e4f !important;
+}
+
+/* Botões secundários: Discuss */
+
+.btn-outline-secondary {
+  border-color: #d7dadc !important;
+  color: #54595d !important;
+  background-color: #ffffff !important;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #f6f7f8 !important;
+  border-color: #878a8c !important;
+  color: #1c1c1c !important;
+}
+
+/* Botões danger: Delete */
+
+.btn-outline-danger {
+  border-color: #dc3545 !important;
+  color: #dc3545 !important;
+  background-color: #ffffff !important;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+  color: #ffffff !important;
+}
+
+/* =========================
+   INPUTS / FORMS
+========================= */
 
 .form-control {
   border-radius: 12px;
@@ -178,7 +248,11 @@ body {
   box-shadow: 0 0 0 0.06rem rgba(0, 0, 0, 0.08);
 }
 
-/* PLACEHOLDERS */
+textarea.form-control {
+  resize: none;
+}
+
+/* Placeholders */
 
 .form-floating > .form-control-plaintext::placeholder,
 .form-floating > .form-control::placeholder {
@@ -191,24 +265,31 @@ body {
   text-align: start;
 }
 
-/* FOOTER */
+/* =========================
+   PROFILE IMAGES
+========================= */
 
-.footer {
-  background-color: #ffffff;
-  border-top: 1px solid #edeff1 !important;
+.profile-avatar,
+.post-avatar,
+.comment-avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
-/* LOGO */
-
-.talkr-logo {
-  font-family: "Times New Roman", serif;
-  font-weight: 900;
-  font-size: 1.5rem;
-  letter-spacing: -1.5px;
-  color: #7fe053 !important;
+.post-avatar {
+  width: 42px;
+  height: 42px;
 }
 
-/* PRIVACY */
+.comment-avatar {
+  width: 34px;
+  height: 34px;
+}
+
+/* =========================
+   PRIVACY PAGE
+========================= */
 
 .privacy-container {
   max-width: 850px;
@@ -217,7 +298,7 @@ body {
 }
 
 .privacy-card {
-  background: white;
+  background: #ffffff;
   border-radius: 22px;
   padding: 45px;
   box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
@@ -256,33 +337,11 @@ body {
   color: #888;
 }
 
-/* PROFILE IMAGES */
+/* =========================
+   FOOTER
+========================= */
 
-.profile-avatar,
-.post-avatar,
-.comment-avatar {
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.post-avatar {
-  width: 42px;
-  height: 42px;
-}
-
-.comment-avatar {
-  width: 34px;
-  height: 34px;
-}
-
-textarea.form-control {
-  resize: none;
-}
-
-.card-hover:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
-  transition: all 0.3s ease;
-  cursor: pointer;
+.footer {
+  background-color: #ffffff;
+  border-top: 1px solid #edeff1 !important;
 }
