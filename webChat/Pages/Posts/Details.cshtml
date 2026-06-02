@@ -60,33 +60,34 @@
 
     </div>
 
-    <div class="card shadow-sm border-0 rounded-4 mb-4">
+<div class="card shadow-sm border-0 rounded-4 mb-4">
 
-        <div class="card-body">
+    <div class="card-body">
 
-            <form method="post" id="commentForm">
+        <form method="post" id="commentForm">
 
-                <div class="mb-3">
+            <div class="mb-3">
 
-                    <textarea asp-for="NewComment"
+                <textarea asp-for="NewComment"
                       id="commentBox"
                       class="form-control"
                       rows="3"
                       placeholder="Write your thoughts..."></textarea>
 
-                </div>
+            </div>
 
-                <button type="submit"
-                        class="btn btn-comment rounded-pill px-4 fw-bold mt-2">
-                    Comment
-                </button>
+            <button type="submit"
+                    class="btn btn-comment rounded-pill px-4 fw-bold mt-2">
+                Comment
+            </button>
 
-            </form>
-
-        </div>
+        </form>
 
     </div>
 
+</div>
+
+<div id="commentsContainer">
     @if (Model.Comments.Any())
     {
         @foreach (var comment in Model.Comments)
@@ -201,14 +202,85 @@
     }
 
 </div>
+</div>
 
 @section Scripts {
+
     <script>
+
         document.addEventListener("DOMContentLoaded", function () {
 
-            const commentBox = document.querySelector('textarea[name="NewComment"]');
+            const commentForm = document.getElementById("commentForm");
+            const commentBox = document.getElementById("commentBox");
 
-            if (!commentBox) return;
+            if (!commentForm || !commentBox)
+                return;
+
+            async function submitComment() {
+
+                const text = commentBox.value.trim();
+
+                if (text.length === 0)
+                    return;
+
+                const formData = new FormData(commentForm);
+
+                const response = await fetch(
+                    "?handler=CommentAjax&id=@Model.Post.Id",
+                    {
+                        method: "POST",
+                        body: formData
+                    });
+
+                const data = await response.json();
+
+                if (!data.success)
+                    return;
+
+                commentBox.value = "";
+
+                const container =
+                    document.getElementById("commentsContainer");
+
+                container.insertAdjacentHTML(
+                    "afterbegin",
+                    `
+                        <div class="card shadow-sm border-0 rounded-4 mb-3">
+                            <div class="card-body">
+                
+                                <div class="d-flex align-items-center mb-3">
+                
+                                    <img src="${data.avatar}"
+                                         class="comment-avatar me-2" />
+                
+                                    <div>
+                
+                                        <div class="fw-bold">
+                                            ${data.username}
+                                        </div>
+                
+                                        <div class="text-muted small">
+                                            ${data.date}
+                                        </div>
+                
+                                    </div>
+                
+                                </div>
+                
+                                <p class="mb-2 comment-content">
+                                    ${data.content}
+                                </p>
+                
+                                <button type="button"
+                                        class="btn btn-link btn-sm text-decoration-none">
+                                    Reply ▼
+                                </button>
+                
+                            </div>
+                        </div>
+                        `
+                    );
+                }
 
             commentBox.addEventListener("keydown", function (e) {
 
@@ -216,20 +288,21 @@
 
                     e.preventDefault();
 
-                    const text = commentBox.value.trim();
-
-                    if (text.length === 0)
-                        return;
-
-                    const form = commentBox.closest("form");
-
-                    if (form) {
-                        form.submit();
-                    }
+                    submitComment();
                 }
 
             });
 
+            commentForm.addEventListener("submit", function (e) {
+
+                e.preventDefault();
+
+                submitComment();
+
+            });
+
         });
+
     </script>
+
 }
