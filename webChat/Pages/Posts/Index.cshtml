@@ -37,7 +37,7 @@
                                             <span class="fw-bold text-dark">
                                                 @post.AuthorName
                                             </span>
-                                            • há @((DateTime.UtcNow - post.CreatedAt).Hours) horas
+                                            • @post.TimeAgo ago
                                         </div>
                                     </div>
                                 </div>
@@ -68,7 +68,9 @@
                                      post.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
                                 {
                                     <form method="post" asp-page-handler="DeletePost" asp-route-id="@post.Id">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger rounded-pill"
+                                                onclick="return confirm('Tens a certeza que queres apagar este post?');">
                                             Delete
                                         </button>
                                     </form>

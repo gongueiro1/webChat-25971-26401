@@ -352,3 +352,18 @@ textarea.form-control {
 .comment-content {
   white-space: pre-line;
 }
+
+/* =========================
+   REPLY
+========================= */
+
+.reply-box {
+  width: 600px;
+  max-width: 100%;
+  min-height: 80px;
+  resize: none;
+}
+
+.reply-btn {
+  min-width: 90px;
+}

@@ -28,6 +28,9 @@ public class DetailsModel : PageModel
 
     [BindProperty]
     public string NewComment { get; set; } = string.Empty;
+    
+    [BindProperty]
+    public string ReplyContent { get; set; } = string.Empty;
 
     public async Task<IActionResult> OnGetAsync(int id)
     {
@@ -50,7 +53,9 @@ public class DetailsModel : PageModel
 
         Comments = await _context.Comments
             .Include(c => c.User)
-            .Where(c => c.PostId == id)
+            .Include(c => c.Replies)
+            .ThenInclude(r => r.User)
+            .Where(c => c.PostId == id && c.ParentCommentId == null)
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
 
@@ -79,10 +84,7 @@ public class DetailsModel : PageModel
             Content = NewComment,
             CreatedAt = DateTime.UtcNow,
             PostId = id,
-            UserId = user.Id,
-            AuthorName = user.UserName ?? "Unknown",
-            ProfileImage = user.ProfileImageUrl
-                ?? "/images/avatars/default-avatar.png"
+            UserId = user.Id
         };
 
         _context.Comments.Add(comment);
@@ -94,7 +96,9 @@ public class DetailsModel : PageModel
 
     public async Task<IActionResult> OnPostDeleteCommentAsync(int commentId, int id)
     {
-        var comment = await _context.Comments.FindAsync(commentId);
+        var comment = await _context.Comments
+            .Include(c => c.Replies)
+            .FirstOrDefaultAsync(c => c.Id == commentId);
 
         if (comment == null)
         {
@@ -108,10 +112,84 @@ public class DetailsModel : PageModel
             return Forbid();
         }
 
+        if (comment.Replies.Any())
+        {
+            _context.Comments.RemoveRange(comment.Replies);
+        }
+
         _context.Comments.Remove(comment);
 
         await _context.SaveChangesAsync();
 
         return RedirectToPage(new { id });
+    }
+    
+    public async Task<IActionResult> OnPostReplyAsync(
+        int id,
+        int parentCommentId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+        {
+            return Challenge();
+        }
+
+        var reply = new Comment
+        {
+            Content = ReplyContent,
+            CreatedAt = DateTime.UtcNow,
+            PostId = id,
+            ParentCommentId = parentCommentId,
+            UserId = user.Id
+        };
+
+        _context.Comments.Add(reply);
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToPage(new { id });
+    }
+    
+    public async Task<IActionResult> OnPostDeletePostAsync(int id)
+    {
+        var post = await _context.Posts
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (post == null)
+        {
+            return NotFound();
+        }
+
+        var userId = _userManager.GetUserId(User);
+
+        if (post.UserId != userId)
+        {
+            return Forbid();
+        }
+
+        var reports = await _context.Reports
+            .Where(r => r.PostId == id)
+            .ToListAsync();
+
+        _context.Reports.RemoveRange(reports);
+
+        var comments = await _context.Comments
+            .Where(c => c.PostId == id)
+            .ToListAsync();
+
+        _context.Comments.RemoveRange(comments);
+
+        var supports = await _context.PostSupports
+            .Where(s => s.PostId == id)
+            .ToListAsync();
+
+        _context.PostSupports.RemoveRange(supports);
+
+        _context.Posts.Remove(post);
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToPage("/Posts/Index");
     }
 }

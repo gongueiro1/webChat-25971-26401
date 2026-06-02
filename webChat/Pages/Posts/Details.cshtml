@@ -34,6 +34,23 @@
             <h2 class="fw-bold mb-3">
                 @Model.Post.Title
             </h2>
+            
+            @if (Model.Post.UserId ==
+                 User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+            {
+                <form method="post"
+                      asp-page-handler="DeletePost"
+                      asp-route-id="@Model.Post.Id"
+                      class="mb-3">
+
+                    <button type="submit"
+                            class="btn btn-sm btn-outline-danger rounded-pill"
+                            onclick="return confirm('Delete this post?');">
+                        Delete Post
+                    </button>
+
+                </form>
+            }
 
             <p class="mb-0">
                 @Model.Post.Content
@@ -47,14 +64,15 @@
 
         <div class="card-body">
 
-            <form method="post">
+            <form method="post" id="commentForm">
 
                 <div class="mb-3">
 
                     <textarea asp-for="NewComment"
-                              class="form-control"
-                              rows="3"
-                              placeholder="Write your thoughts..."></textarea>
+                      id="commentBox"
+                      class="form-control"
+                      rows="3"
+                      placeholder="Write your thoughts..."></textarea>
 
                 </div>
 
@@ -79,13 +97,13 @@
 
                     <div class="d-flex align-items-center mb-3">
 
-                        <img src="@(comment.User?.ProfileImageUrl ?? comment.ProfileImage ?? "/images/avatars/default-avatar.png")"
+                        <img src="@(comment.User?.ProfileImageUrl ?? "/images/avatars/default-avatar.png")"
                              class="comment-avatar me-2" />
 
                         <div>
 
                             <div class="fw-bold">
-                                @(comment.User?.UserName ?? comment.AuthorName)
+                                @(comment.User?.UserName ?? "Unknown")
                             </div>
 
                             <div class="text-muted small">
@@ -98,10 +116,66 @@
 
                     <div class="d-flex justify-content-between align-items-start">
 
-                        <p class="mb-0 comment-content">
-                            @comment.Content
-                        </p>
+                        <div class="mt-2">
 
+                            <p class="mb-2 comment-content">
+                                @comment.Content
+                            </p>
+
+                            <button type="button"
+                                    class="btn btn-link btn-sm text-decoration-none reply-toggle"
+                                    onclick="document.getElementById('reply-@comment.Id').classList.toggle('d-none')">
+                                Reply ▼
+                            </button>
+
+                            <div id="reply-@comment.Id" class="d-none mt-3">
+
+                                <form method="post"
+                                      asp-page-handler="Reply"
+                                      asp-route-id="@Model.Post.Id"
+                                      asp-route-parentCommentId="@comment.Id">
+
+                                    <textarea name="ReplyContent"
+                                      class="form-control mb-2 reply-box"
+                                      rows="3"
+                                      placeholder="Write a reply..."
+                                      style="max-width: 600px;"></textarea>
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-primary rounded-pill px-3 reply-submit">
+                                        Reply
+                                    </button>
+                                </form>
+
+                                @if (comment.Replies.Any())
+                                {
+                                    <div class="ms-4 mt-3 border-start ps-3">
+
+                                        @foreach (var reply in comment.Replies.OrderBy(r => r.CreatedAt))
+                                        {
+                                            <div class="mb-3">
+
+                                                <div class="fw-bold">
+                                                    @(reply.User?.UserName ?? "Unknown")
+                                                </div>
+
+                                                <div class="text-muted small">
+                                                    @reply.CreatedAt.ToString("g")
+                                                </div>
+
+                                                <div class="comment-content">
+                                                    @reply.Content
+                                                </div>
+
+                                            </div>
+                                        }
+
+                                    </div>
+                                }
+
+                            </div>
+
+                        </div>
                         @if (User.Identity?.IsAuthenticated == true &&
                              comment.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
                         {
