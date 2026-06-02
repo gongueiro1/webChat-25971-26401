@@ -211,13 +211,14 @@ public class DetailsModel : PageModel
         return new JsonResult(new
         {
             success = true,
+            commentId = comment.Id,
             username = user.UserName,
             avatar = user.ProfileImageUrl ?? "/images/avatars/default-avatar.png",
             content = comment.Content,
             date = comment.CreatedAt.ToString("g")
         });
     }
-
+    
     public async Task<IActionResult> OnPostReplyAjaxAsync(
         int id,
         int parentCommentId)
@@ -226,7 +227,10 @@ public class DetailsModel : PageModel
 
         if (user == null)
         {
-            return new JsonResult(new { success = false });
+            return new JsonResult(new
+            {
+                success = false
+            });
         }
 
         var reply = new Comment
@@ -245,6 +249,7 @@ public class DetailsModel : PageModel
         return new JsonResult(new
         {
             success = true,
+            commentId = reply.Id,
             username = user.UserName,
             avatar = user.ProfileImageUrl ?? "/images/avatars/default-avatar.png",
             content = reply.Content,

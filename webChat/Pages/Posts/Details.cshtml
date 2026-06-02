@@ -131,10 +131,9 @@
 
                             <div id="reply-@comment.Id" class="d-none mt-3">
 
-                                <form method="post"
-                                      asp-page-handler="Reply"
-                                      asp-route-id="@Model.Post.Id"
-                                      asp-route-parentCommentId="@comment.Id">
+                                <form class="ajax-reply-form"
+                                      data-comment-id="@comment.Id">
+                                    @Html.AntiForgeryToken()
 
                                     <textarea name="ReplyContent"
                                       id="replyBox-@comment.Id"
@@ -174,6 +173,8 @@
 
                                     </div>
                                 }
+                                
+                                <div class="ajax-replies mt-3"></div>
 
                             </div>
 
@@ -201,7 +202,7 @@
             </div>
         }
     }
-
+    
 </div>
 </div>
 
@@ -234,6 +235,8 @@
                 });
 
             const data = await response.json();
+
+            console.log(data);
 
             if (!data.success)
                 return;
@@ -273,9 +276,32 @@
                                 </p>
                 
                                 <button type="button"
-                                        class="btn btn-link btn-sm text-decoration-none">
-                                    Reply ▼
+                                    class="btn btn-link btn-sm text-decoration-none"
+                                    onclick="document.getElementById('reply-${data.commentId}').classList.toggle('d-none')">
+                                Reply ▼
+                            </button>
+
+                            <div id="reply-${data.commentId}" class="d-none mt-3">
+                            
+                            <form class="ajax-reply-form"
+                                  data-comment-id="${data.commentId}">
+                                @Html.AntiForgeryToken()
+                            
+                                <textarea name="ReplyContent"
+                                          class="form-control mb-2"
+                                          rows="3"
+                                          placeholder="Write a reply..."
+                                          style="max-width: 600px;"></textarea>
+                            
+                                <button type="submit"
+                                        class="btn btn-sm btn-primary rounded-pill px-3">
+                                    Reply
                                 </button>
+                            </form>
+                            
+                            <div class="ajax-replies mt-3"></div>
+                            
+                            </div>
                 
                             </div>
                         </div>
@@ -302,25 +328,93 @@
 
         });
 
-        document.querySelectorAll(".reply-box").forEach(box => {
+        document.addEventListener("submit", async function (e) {
 
-            box.addEventListener("keydown", function (e) {
+            const form = e.target;
 
-                if (e.key === "Enter" && !e.shiftKey) {
+            if (!form.classList.contains("ajax-reply-form"))
+                return;
 
-                    e.preventDefault();
+            e.preventDefault();
 
-                    const form = box.closest("form");
+            console.log("SUBMIT AJAX");
 
-                    if (form) {
-                        form.submit();
-                    }
-                }
+            const commentId = form.dataset.commentId;
 
-            });
+            console.log(commentId);
+
+            const textarea =
+                form.querySelector("textarea");
+
+            const content =
+                textarea.value.trim();
+
+            if (!content)
+                return;
+
+            const formData = new FormData(form);
+
+            const token =
+                form.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            const response = await fetch(
+                `/Posts/Details/@Model.Post.Id?handler=ReplyAjax&id=@Model.Post.Id&parentCommentId=${commentId}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "RequestVerificationToken": token
+                    },
+                    body: formData
+                });
+
+            const data = await response.json();
+
+            if (!data.success)
+                return;
+
+            textarea.value = "";
+
+            const repliesContainer =
+                form.parentElement.querySelector(".ajax-replies");
+
+            console.log(repliesContainer);
+            console.log(form.parentElement);
+            
+            repliesContainer.insertAdjacentHTML(
+                "beforeend",
+                `
+        <div class="ms-4 mt-3 border-start ps-3">
+
+            <div class="fw-bold">
+                ${data.username}
+            </div>
+
+            <div class="text-muted small">
+                ${data.date}
+            </div>
+
+            <div class="comment-content">
+                ${data.content}
+            </div>
+
+        </div>
+        `
+            );
 
         });
+        
+        document.addEventListener("keydown", function (e) {
 
+            if (!e.target.matches(".ajax-reply-form textarea"))
+                return;
+
+            if (e.key === "Enter" && !e.shiftKey) {
+
+                e.preventDefault();
+
+                e.target.closest("form").requestSubmit();
+            }
+        });
     });
 
 </script>
