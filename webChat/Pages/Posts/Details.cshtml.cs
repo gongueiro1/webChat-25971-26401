@@ -168,12 +168,6 @@ public class DetailsModel : PageModel
             return Forbid();
         }
 
-        var reports = await _context.Reports
-            .Where(r => r.PostId == id)
-            .ToListAsync();
-
-        _context.Reports.RemoveRange(reports);
-
         var comments = await _context.Comments
             .Where(c => c.PostId == id)
             .ToListAsync();
