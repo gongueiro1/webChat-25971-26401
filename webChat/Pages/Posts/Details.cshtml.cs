@@ -186,4 +186,69 @@ public class DetailsModel : PageModel
 
         return RedirectToPage("/Posts/Index");
     }
+    
+    public async Task<IActionResult> OnPostCommentAjaxAsync(int id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+        {
+            return new JsonResult(new { success = false });
+        }
+
+        var comment = new Comment
+        {
+            Content = NewComment,
+            CreatedAt = DateTime.UtcNow,
+            PostId = id,
+            UserId = user.Id
+        };
+
+        _context.Comments.Add(comment);
+
+        await _context.SaveChangesAsync();
+
+        return new JsonResult(new
+        {
+            success = true,
+            username = user.UserName,
+            avatar = user.ProfileImageUrl ?? "/images/avatars/default-avatar.png",
+            content = comment.Content,
+            date = comment.CreatedAt.ToString("g")
+        });
+    }
+
+    public async Task<IActionResult> OnPostReplyAjaxAsync(
+        int id,
+        int parentCommentId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+        {
+            return new JsonResult(new { success = false });
+        }
+
+        var reply = new Comment
+        {
+            Content = ReplyContent,
+            CreatedAt = DateTime.UtcNow,
+            PostId = id,
+            ParentCommentId = parentCommentId,
+            UserId = user.Id
+        };
+
+        _context.Comments.Add(reply);
+
+        await _context.SaveChangesAsync();
+
+        return new JsonResult(new
+        {
+            success = true,
+            username = user.UserName,
+            avatar = user.ProfileImageUrl ?? "/images/avatars/default-avatar.png",
+            content = reply.Content,
+            date = reply.CreatedAt.ToString("g")
+        });
+    }
 }
