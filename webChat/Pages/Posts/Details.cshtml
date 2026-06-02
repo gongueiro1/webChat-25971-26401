@@ -137,6 +137,7 @@
                                       asp-route-parentCommentId="@comment.Id">
 
                                     <textarea name="ReplyContent"
+                                      id="replyBox-@comment.Id"
                                       class="form-control mb-2 reply-box"
                                       rows="3"
                                       placeholder="Write a reply..."
@@ -206,45 +207,45 @@
 
 @section Scripts {
 
-    <script>
+<script>
 
-        document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function () {
 
-            const commentForm = document.getElementById("commentForm");
-            const commentBox = document.getElementById("commentBox");
+        const commentForm = document.getElementById("commentForm");
+        const commentBox = document.getElementById("commentBox");
 
-            if (!commentForm || !commentBox)
+        if (!commentForm || !commentBox)
+            return;
+
+        async function submitComment() {
+
+            const text = commentBox.value.trim();
+
+            if (text.length === 0)
                 return;
 
-            async function submitComment() {
+            const formData = new FormData(commentForm);
 
-                const text = commentBox.value.trim();
+            const response = await fetch(
+                "?handler=CommentAjax&id=@Model.Post.Id",
+                {
+                    method: "POST",
+                    body: formData
+                });
 
-                if (text.length === 0)
-                    return;
+            const data = await response.json();
 
-                const formData = new FormData(commentForm);
+            if (!data.success)
+                return;
 
-                const response = await fetch(
-                    "?handler=CommentAjax&id=@Model.Post.Id",
-                    {
-                        method: "POST",
-                        body: formData
-                    });
+            commentBox.value = "";
 
-                const data = await response.json();
+            const container =
+                document.getElementById("commentsContainer");
 
-                if (!data.success)
-                    return;
-
-                commentBox.value = "";
-
-                const container =
-                    document.getElementById("commentsContainer");
-
-                container.insertAdjacentHTML(
-                    "afterbegin",
-                    `
+            container.insertAdjacentHTML(
+                "afterbegin",
+                `
                         <div class="card shadow-sm border-0 rounded-4 mb-3">
                             <div class="card-body">
                 
@@ -279,30 +280,48 @@
                             </div>
                         </div>
                         `
-                    );
-                }
+            );
+        }
 
-            commentBox.addEventListener("keydown", function (e) {
+        commentBox.addEventListener("keydown", function (e) {
+
+            if (e.key === "Enter" && !e.shiftKey) {
+
+                e.preventDefault();
+
+                submitComment();
+            }
+
+        });
+
+        commentForm.addEventListener("submit", function (e) {
+
+            e.preventDefault();
+
+            submitComment();
+
+        });
+
+        document.querySelectorAll(".reply-box").forEach(box => {
+
+            box.addEventListener("keydown", function (e) {
 
                 if (e.key === "Enter" && !e.shiftKey) {
 
                     e.preventDefault();
 
-                    submitComment();
+                    const form = box.closest("form");
+
+                    if (form) {
+                        form.submit();
+                    }
                 }
-
-            });
-
-            commentForm.addEventListener("submit", function (e) {
-
-                e.preventDefault();
-
-                submitComment();
 
             });
 
         });
 
-    </script>
+    });
 
+</script>
 }
