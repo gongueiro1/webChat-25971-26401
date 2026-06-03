@@ -123,6 +123,30 @@ public class DetailsModel : PageModel
 
         return RedirectToPage(new { id });
     }
+
+    // NOVO MÉTODO PARA APAGAR APENAS UMA RESPOSTA
+    public async Task<IActionResult> OnPostDeleteReplyAsync(int replyId, int id)
+    {
+        var reply = await _context.Comments.FindAsync(replyId);
+
+        if (reply == null)
+        {
+            return NotFound();
+        }
+
+        var userId = _userManager.GetUserId(User);
+
+        if (reply.UserId != userId)
+        {
+            return Forbid();
+        }
+
+        _context.Comments.Remove(reply);
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToPage(new { id });
+    }
     
     public async Task<IActionResult> OnPostReplyAsync(
         int id,
