@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using webChat.Data;
 using webChat.Models;
 using Microsoft.AspNetCore.Identity;
+using webChat.Hubs;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+builder.Services.AddSignalR();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     {
@@ -49,4 +53,6 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
+app.MapHub<ChatHub>("/chatHub");
+    
 app.Run();

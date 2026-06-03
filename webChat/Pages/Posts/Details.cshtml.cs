@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using webChat.Data;
+using webChat.Hubs;
 using webChat.Models;
 
 namespace webChat.Pages.Posts;
@@ -13,13 +15,16 @@ public class DetailsModel : PageModel
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IHubContext<ChatHub> _hubContext; // <-- Cérebro do SignalR
 
     public DetailsModel(
         ApplicationDbContext context,
-        UserManager<ApplicationUser> userManager)
+        UserManager<ApplicationUser> userManager,
+        IHubContext<ChatHub> hubContext)
     {
         _context = context;
         _userManager = userManager;
+        _hubContext = hubContext;
     }
 
     public Post Post { get; set; } = default!;
@@ -64,20 +69,11 @@ public class DetailsModel : PageModel
 
     public async Task<IActionResult> OnPostAsync(int id)
     {
-        var post = await _context.Posts
-            .FirstOrDefaultAsync(p => p.Id == id);
-
-        if (post == null)
-        {
-            return NotFound();
-        }
+        var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == id);
+        if (post == null) return NotFound();
 
         var user = await _userManager.GetUserAsync(User);
-
-        if (user == null)
-        {
-            return Challenge();
-        }
+        if (user == null) return Challenge();
 
         var comment = new Comment
         {
@@ -88,7 +84,6 @@ public class DetailsModel : PageModel
         };
 
         _context.Comments.Add(comment);
-
         await _context.SaveChangesAsync();
 
         return RedirectToPage(new { id });
@@ -100,17 +95,10 @@ public class DetailsModel : PageModel
             .Include(c => c.Replies)
             .FirstOrDefaultAsync(c => c.Id == commentId);
 
-        if (comment == null)
-        {
-            return NotFound();
-        }
+        if (comment == null) return NotFound();
 
         var userId = _userManager.GetUserId(User);
-
-        if (comment.UserId != userId)
-        {
-            return Forbid();
-        }
+        if (comment.UserId != userId) return Forbid();
 
         if (comment.Replies.Any())
         {
@@ -118,46 +106,29 @@ public class DetailsModel : PageModel
         }
 
         _context.Comments.Remove(comment);
-
         await _context.SaveChangesAsync();
 
         return RedirectToPage(new { id });
     }
 
-    // NOVO MÉTODO PARA APAGAR APENAS UMA RESPOSTA
     public async Task<IActionResult> OnPostDeleteReplyAsync(int replyId, int id)
     {
         var reply = await _context.Comments.FindAsync(replyId);
-
-        if (reply == null)
-        {
-            return NotFound();
-        }
+        if (reply == null) return NotFound();
 
         var userId = _userManager.GetUserId(User);
-
-        if (reply.UserId != userId)
-        {
-            return Forbid();
-        }
+        if (reply.UserId != userId) return Forbid();
 
         _context.Comments.Remove(reply);
-
         await _context.SaveChangesAsync();
 
         return RedirectToPage(new { id });
     }
     
-    public async Task<IActionResult> OnPostReplyAsync(
-        int id,
-        int parentCommentId)
+    public async Task<IActionResult> OnPostReplyAsync(int id, int parentCommentId)
     {
         var user = await _userManager.GetUserAsync(User);
-
-        if (user == null)
-        {
-            return Challenge();
-        }
+        if (user == null) return Challenge();
 
         var reply = new Comment
         {
@@ -169,7 +140,6 @@ public class DetailsModel : PageModel
         };
 
         _context.Comments.Add(reply);
-
         await _context.SaveChangesAsync();
 
         return RedirectToPage(new { id });
@@ -177,35 +147,19 @@ public class DetailsModel : PageModel
     
     public async Task<IActionResult> OnPostDeletePostAsync(int id)
     {
-        var post = await _context.Posts
-            .FirstOrDefaultAsync(p => p.Id == id);
-
-        if (post == null)
-        {
-            return NotFound();
-        }
+        var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == id);
+        if (post == null) return NotFound();
 
         var userId = _userManager.GetUserId(User);
+        if (post.UserId != userId) return Forbid();
 
-        if (post.UserId != userId)
-        {
-            return Forbid();
-        }
-
-        var comments = await _context.Comments
-            .Where(c => c.PostId == id)
-            .ToListAsync();
-
+        var comments = await _context.Comments.Where(c => c.PostId == id).ToListAsync();
         _context.Comments.RemoveRange(comments);
 
-        var supports = await _context.PostSupports
-            .Where(s => s.PostId == id)
-            .ToListAsync();
-
+        var supports = await _context.PostSupports.Where(s => s.PostId == id).ToListAsync();
         _context.PostSupports.RemoveRange(supports);
 
         _context.Posts.Remove(post);
-
         await _context.SaveChangesAsync();
 
         return RedirectToPage("/Posts/Index");
@@ -214,11 +168,7 @@ public class DetailsModel : PageModel
     public async Task<IActionResult> OnPostCommentAjaxAsync(int id)
     {
         var user = await _userManager.GetUserAsync(User);
-
-        if (user == null)
-        {
-            return new JsonResult(new { success = false });
-        }
+        if (user == null) return new JsonResult(new { success = false });
 
         var comment = new Comment
         {
@@ -229,8 +179,17 @@ public class DetailsModel : PageModel
         };
 
         _context.Comments.Add(comment);
-
         await _context.SaveChangesAsync();
+
+        // --- MAGIA SIGNALR PARA COMENTÁRIOS ---
+        await _hubContext.Clients.Group($"Post_{id}").SendAsync("ReceiveComment", new
+        {
+            commentId = comment.Id,
+            username = user.UserName,
+            avatar = user.ProfileImageUrl ?? "/images/avatars/default-avatar.png",
+            content = comment.Content,
+            date = comment.CreatedAt.ToString("g")
+        });
 
         return new JsonResult(new
         {
@@ -243,19 +202,10 @@ public class DetailsModel : PageModel
         });
     }
     
-    public async Task<IActionResult> OnPostReplyAjaxAsync(
-        int id,
-        int parentCommentId)
+    public async Task<IActionResult> OnPostReplyAjaxAsync(int id, int parentCommentId)
     {
         var user = await _userManager.GetUserAsync(User);
-
-        if (user == null)
-        {
-            return new JsonResult(new
-            {
-                success = false
-            });
-        }
+        if (user == null) return new JsonResult(new { success = false });
 
         var reply = new Comment
         {
@@ -267,8 +217,16 @@ public class DetailsModel : PageModel
         };
 
         _context.Comments.Add(reply);
-
         await _context.SaveChangesAsync();
+
+        // --- MAGIA SIGNALR PARA RESPOSTAS ---
+        await _hubContext.Clients.Group($"Post_{id}").SendAsync("ReceiveReply", new
+        {
+            parentCommentId = parentCommentId,
+            username = user.UserName,
+            content = reply.Content,
+            date = reply.CreatedAt.ToString("g")
+        });
 
         return new JsonResult(new
         {

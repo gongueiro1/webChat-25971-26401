@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Security.Claims; // Obrigatório para ir buscar o ID do utilizador
+using System.Security.Claims;
+using Microsoft.AspNetCore.SignalR; // <-- Importante
 using webChat.Data;
+using webChat.Hubs; // <-- Importante
 using webChat.Models;
 
 namespace webChat.Pages.Posts
@@ -9,15 +11,16 @@ namespace webChat.Pages.Posts
     public class CreateModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly IHubContext<ChatHub> _hubContext; // <-- Cérebro do SignalR
 
-        public CreateModel(ApplicationDbContext context)
+        public CreateModel(ApplicationDbContext context, IHubContext<ChatHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         public IActionResult OnGet()
         {
-            // Opcional mas recomendado: Se o gajo não estiver logado, manda-o para o Login!
             if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
                 return RedirectToPage("/Account/Login", new { area = "Identity" });
@@ -30,7 +33,6 @@ namespace webChat.Pages.Posts
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // 1. Ignorar os erros do UserId e AuthorName porque nós é que os vamos preencher agora
             ModelState.Remove("Post.UserId");
             ModelState.Remove("Post.AuthorName");
 
@@ -39,16 +41,21 @@ namespace webChat.Pages.Posts
                 return Page();
             }
 
-            // 2. A MÁGICA: Preencher quem é o dono do Post automaticamente!
             Post.UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             Post.AuthorName = User.Identity?.Name ?? "Anónimo";
             Post.CreatedAt = DateTime.UtcNow;
 
-            // 3. Guardar na Base de Dados
             _context.Posts.Add(Post);
             await _context.SaveChangesAsync();
 
-            // 4. Voltar para o Feed
+            // --- ALARME PARA O TEU TERMINAL DO RIDER ---
+            Console.WriteLine($"\n\n ---> [SIGNALR] A enviar aviso de novo post do autor: {Post.AuthorName} <--- \n\n");
+
+            // --- MAGIA SIGNALR ---
+            await _hubContext.Clients.All.SendAsync("ReceiveNewPost", new { 
+                author = Post.AuthorName 
+            });
+
             return RedirectToPage("./Index");
         }
     }
