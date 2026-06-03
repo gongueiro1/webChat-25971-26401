@@ -17,11 +17,9 @@ public class IndexModel : PageModel
 
     public List<PostDto> Posts { get; set; } = new();
     
-    // Variável para guardar o que o utilizador pesquisou
     [BindProperty(SupportsGet = true)]
     public string? SearchString { get; set; }
 
-    // Repara que adicionei o parâmetro searchString aqui!
     public async Task OnGetAsync(string? searchString)
     {
         SearchString = searchString;
@@ -35,16 +33,14 @@ public class IndexModel : PageModel
                 PropertyNameCaseInsensitive = true
             }) ?? new List<PostDto>();
 
-        // --- A MAGIA DA PESQUISA ACONTECE AQUI ---
+        // Filtro da Barra de Pesquisa
         if (!string.IsNullOrEmpty(SearchString))
         {
-            // Filtra a lista mantendo apenas os posts onde o Título ou o Conteúdo têm a palavra pesquisada
             Posts = Posts.Where(p => 
                 p.Title.Contains(SearchString, StringComparison.OrdinalIgnoreCase) || 
                 p.Content.Contains(SearchString, StringComparison.OrdinalIgnoreCase)
             ).ToList();
         }
-        // -----------------------------------------
 
         if (Posts.Any())
         {
@@ -60,6 +56,22 @@ public class IndexModel : PageModel
             {
                 post.FormattedSupportCount = allSupports.Count(s => s.PostId == post.Id);
                 post.IsSupportedByCurrentUser = userId != null && allSupports.Any(s => s.PostId == post.Id && s.UserId == userId);
+                
+                // --- A MAGIA DO TEMPO COMEÇA AQUI ---
+                var ts = DateTime.UtcNow - post.CreatedAt;
+                if (ts.TotalSeconds < 60) 
+                    post.TimeAgo = $"{(int)ts.TotalSeconds}s";
+                else if (ts.TotalMinutes < 60) 
+                    post.TimeAgo = $"{(int)ts.TotalMinutes}m";
+                else if (ts.TotalHours < 24) 
+                    post.TimeAgo = $"{(int)ts.TotalHours}h";
+                else if (ts.TotalDays < 30) 
+                    post.TimeAgo = $"{(int)ts.TotalDays}d";
+                else if (ts.TotalDays < 365) 
+                    post.TimeAgo = $"{(int)(ts.TotalDays / 30)}M"; // 'M' maiúsculo para não confundir com minutos
+                else 
+                    post.TimeAgo = $"{(int)(ts.TotalDays / 365)}a";
+                // ------------------------------------
             }
         }
     }
@@ -86,8 +98,6 @@ public class IndexModel : PageModel
         }
 
         await _context.SaveChangesAsync();
-
-        // Volta para a mesma página mantendo a pesquisa ativa na barra de endereço
         return RedirectToPage(new { searchString = Request.Query["searchString"] });
     }
 
