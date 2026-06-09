@@ -59,10 +59,13 @@
                             <hr />
                             <div class="d-flex gap-2 flex-wrap">
                                 
-                                <form method="post" asp-page-handler="Support" asp-route-id="@post.Id">
+                                <form method="post" asp-page-handler="Support" asp-route-id="@post.Id" class="support-form" data-post-id="@post.Id">
                                     <button type="submit" 
                                             class="btn btn-sm px-4 rounded-pill fw-bold transition-all @(post.IsSupportedByCurrentUser ? "btn-primary" : "btn-outline-primary")">
-                                        Support · @post.FormattedSupportCount
+                                        Support ·
+                                        <span id="support-count-@post.Id">
+                                            @post.FormattedSupportCount
+                                        </span>
                                     </button>
                                 </form>
 
@@ -118,35 +121,49 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            
+
             const connection = new signalR.HubConnectionBuilder()
                 .withUrl("/chatHub")
                 .build();
 
             connection.start().catch(err => console.error(err.toString()));
 
-            let novosPosts = 0; 
-
+            // NOVOS POSTS
+            let novosPosts = 0;
             connection.on("ReceiveNewPost", function (data) {
+
                 const currentUser = '@(User.Identity?.Name ?? "")';
-                
+
                 if (data.author !== currentUser) {
                     novosPosts++;
-                    
+
                     const alertBox = document.getElementById("newPostAlert");
                     const alertText = document.getElementById("newPostText");
-                    
+
                     if (novosPosts === 1) {
                         alertText.textContent = `Show 1 post`;
                     } else {
                         alertText.textContent = `Show ${novosPosts} posts`;
                     }
-                    
-                    alertBox.classList.remove("d-none"); 
 
-                    // Efeito visual adaptado para manter a pílula centrada (-50% X) durante o salto
+                    alertBox.classList.remove("d-none");
+
                     alertBox.style.transform = "translateX(-50%) scale(1.05)";
-                    setTimeout(() => alertBox.style.transform = "translateX(-50%) scale(1)", 200);
+                    setTimeout(() =>
+                            alertBox.style.transform = "translateX(-50%) scale(1)",
+                        200);
+                }
+            });
+
+            // SUPPORTS
+            connection.on("SupportUpdated", function(postId, totalSupports) {
+
+                const counter =
+                    document.getElementById(`support-count-${postId}`);
+
+                if(counter)
+                {
+                    counter.textContent = totalSupports;
                 }
             });
         });

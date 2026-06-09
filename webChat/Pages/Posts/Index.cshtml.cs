@@ -2,17 +2,23 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using webChat.Data; 
-using webChat.Models; 
+using webChat.Models;
+using Microsoft.AspNetCore.SignalR;
+using webChat.Hubs;
 
 namespace webChat.Pages.Posts;
 
 public class IndexModel : PageModel
 {
     private readonly ApplicationDbContext _context;
+    private readonly IHubContext<ChatHub> _hubContext;
 
-    public IndexModel(ApplicationDbContext context)
+    public IndexModel(
+        ApplicationDbContext context,
+        IHubContext<ChatHub> hubContext)
     {
         _context = context;
+        _hubContext = hubContext;
     }
 
     public List<PostDto> Posts { get; set; } = new();
@@ -25,7 +31,7 @@ public class IndexModel : PageModel
         SearchString = searchString;
 
         using var client = new HttpClient();
-        var response = await client.GetStringAsync("https://localhost:7202/api/posts");
+        var response = await client.GetStringAsync("http://localhost:5030/api/posts");
         
         Posts = JsonSerializer.Deserialize<List<PostDto>>(response,
             new JsonSerializerOptions
@@ -98,6 +104,13 @@ public class IndexModel : PageModel
         }
 
         await _context.SaveChangesAsync();
+        var totalSupports = _context.PostSupports.Count(s => s.PostId == id);
+
+        await _hubContext.Clients.All.SendAsync(
+            "SupportUpdated",
+            id,
+            totalSupports
+        );
         return RedirectToPage(new { searchString = Request.Query["searchString"] });
     }
 
