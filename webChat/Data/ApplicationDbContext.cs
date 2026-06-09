@@ -4,7 +4,7 @@ using webChat.Models;
 
 namespace webChat.Data;
 
-public class ApplicationDbContext : IdentityDbContext
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -12,4 +12,20 @@ public class ApplicationDbContext : IdentityDbContext
     }
 
     public DbSet<Post> Posts { get; set; }
+    public DbSet<Comment> Comments { get; set; }
+    public DbSet<PostLike> PostLikes { get; set; }
+    public DbSet<Report> Reports { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        builder.Entity<PostLike>()
+            .HasKey(pl => new { pl.UserId, pl.PostId });
+
+        builder.Entity<Post>()
+            .HasOne(p => p.User)
+            .WithMany()
+            .HasForeignKey(p => p.UserId);
+    }
 }

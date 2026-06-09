@@ -1,5 +1,7 @@
 html {
   font-size: 14px;
+  position: relative;
+  min-height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -8,24 +10,192 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
 body {
   margin-bottom: 60px;
+  background-color: #f6f7f8;
+  color: #1c1c1c;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
+/* NAVBAR */
+.navbar {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #edeff1 !important;
+  box-shadow: none !important;
+}
+
+.navbar-brand {
+  font-weight: 600;
+  color: #1c1c1c !important;
+}
+
+.nav-link {
+  color: #1c1c1c !important;
+}
+
+.nav-link:hover {
+  color: #5f9e4f !important;
+}
+
+/* SIDEBAR (PROFILE MENU) */
+.nav-pills .nav-link {
+  color: #1c1c1c !important;
+  border-radius: 8px;
+}
+
+.nav-pills .nav-link:hover {
+  background-color: #f6f7f8;
+  color: #5f9e4f !important;
+}
+
+/* ITEM ATIVO (REMOVE AZUL) */
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+  background-color: #5f9e4f !important;
+  color: #ffffff !important;
+  border-color: #5f9e4f !important;
+}
+
+/* CARDS */
+.card {
+  background-color: #ffffff;
+  border: 1px solid #edeff1 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
+.card:hover {
+  border-color: #d7dadc !important;
+}
+
+.card-header {
+  background-color: #5f9e4f !important;
+  border-bottom: none !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+/* caso ainda uses bg-primary noutros lados */
+.bg-primary {
+  background-color: #5f9e4f !important;
+}
+
+/* TEXTOS */
+.text-muted {
+  color: #787c7e !important;
+}
+
+.text-secondary {
+  color: #54595d !important;
+}
+
+.text-dark {
+  color: #1c1c1c !important;
+}
+
+/* BOTÕES BASE */
+.btn {
+  border-radius: 20px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+/* BOTÃO PRINCIPAL (VERDE CLEAN) */
+.btn-primary {
+  background-color: #5f9e4f;
+  border-color: #5f9e4f;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #4e853f;
+  border-color: #4e853f;
+  color: #ffffff;
+}
+
+.btn-primary:active {
+  background-color: #3f6f33;
+  border-color: #3f6f33;
+  transform: translateY(1px);
+}
+
+/* BOOTSTRAP ACTIVE OVERRIDE (remove azul ao clicar) */
+.btn-primary:active,
+.btn-primary.active,
+.show > .btn-primary.dropdown-toggle {
+  background-color: #3f6f33 !important;
+  border-color: #3f6f33 !important;
+  color: #ffffff !important;
+}
+
+.btn-check:active + .btn-primary,
+.btn-check:checked + .btn-primary {
+  background-color: #3f6f33 !important;
+  border-color: #3f6f33 !important;
+}
+
+/* BOTÕES OUTLINE */
+.btn-outline-secondary {
+  border-color: #d7dadc;
+  color: #54595d;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #f6f7f8;
+  border-color: #878a8c;
+  color: #1c1c1c;
+}
+
+/* REMOVE COMPLETAMENTE O AZUL (FOCUS) */
+.btn:focus,
+.btn:active:focus,
+.btn-primary:focus,
+.btn-primary:active:focus,
+.btn-link.nav-link:focus,
+.form-check-input:focus {
+  box-shadow: none !important;
+}
+
+/* FOCO SUAVE OPCIONAL (teclado/acessibilidade) */
+.btn:focus-visible {
+  box-shadow: 0 0 0 0.06rem rgba(95, 158, 79, 0.25);
+}
+
+/* INPUTS */
+.form-control {
+  border-radius: 6px;
+  border: 1px solid #d7dadc;
+  background-color: #ffffff;
+  color: #1c1c1c;
+}
+
+.form-control:focus {
+  border-color: #878a8c;
+  box-shadow: 0 0 0 0.06rem rgba(0, 0, 0, 0.08);
+}
+
+/* PLACEHOLDERS */
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+  color: #787c7e;
   text-align: end;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
   text-align: start;
+}
+
+/* FOOTER */
+.footer {
+  background-color: #ffffff;
+  border-top: 1px solid #edeff1 !important;
+}
+
+/* LOGO */
+.talkr-logo {
+  font-family: "Times New Roman", serif;
+  font-weight: 900;
+  font-size: 1.5rem;
+  letter-spacing: -1.5px;
+  color: #000000 !important;
 }

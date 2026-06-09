@@ -2,21 +2,16 @@
 
 #nullable disable
 
-namespace webChat.Data.Migrations
+namespace webChat.Migrations
 {
-    /// <inheritdoc />
-    public partial class AddForumModels : Migration
+    public partial class AddApplicationUserProfileImage : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-
         }
     }
 }

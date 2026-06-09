@@ -1,0 +1,39 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using webChat.Data;
+
+namespace webChat.API.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class PostsController : ControllerBase
+{
+    private readonly ApplicationDbContext _context;
+
+    public PostsController(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetPosts()
+    {
+        var posts = await _context.Posts
+            .Include(p => p.User)
+            .OrderByDescending(p => p.CreatedAt)
+            .Select(p => new
+            {
+                p.Id,
+                p.Title,
+                p.Content,
+                AuthorName = p.User != null ? p.User.UserName : p.AuthorName,
+                p.CreatedAt,
+                ProfileImage = p.User != null && p.User.ProfileImageUrl != null
+                    ? p.User.ProfileImageUrl
+                    : "/images/avatars/default-avatar.png"
+            })
+            .ToListAsync();
+
+        return Ok(posts);
+    }
+}
