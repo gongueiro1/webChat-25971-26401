@@ -1,0 +1,64 @@
+name: Build and deploy ASP.Net Core app to Azure Web App - talkr-25971-26401
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Restore
+        run: dotnet restore ./webChat/webChat.csproj
+
+      - name: Build
+        run: dotnet build ./webChat/webChat.csproj --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish ./webChat/webChat.csproj -c Release -o ./publish --no-build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: .net-app
+          path: ./publish
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: .net-app
+          path: ./publish
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_B6FCD0BED6244551B703493CEF975FF1 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_25C08C65A00742179C2C654EF1341AB4 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_344B57077A4E43AAB4398B0976D4DB11 }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'talkr-25971-26401'
+          slot-name: 'Production'
+          package: ./publish
