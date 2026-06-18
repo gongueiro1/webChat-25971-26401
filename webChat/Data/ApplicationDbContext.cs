@@ -33,12 +33,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasOne(ps => ps.Post)
             .WithMany()
             .HasForeignKey(ps => ps.PostId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         builder.Entity<Post>()
             .HasOne(p => p.User)
             .WithMany()
-            .HasForeignKey(p => p.UserId);
+            .HasForeignKey(p => p.UserId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         builder.Entity<Comment>()
             .HasOne(c => c.User)
@@ -47,9 +48,27 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .OnDelete(DeleteBehavior.NoAction);
 
         builder.Entity<Comment>()
+            .HasOne(c => c.Post)
+            .WithMany()
+            .HasForeignKey(c => c.PostId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.Entity<Comment>()
             .HasOne(c => c.ParentComment)
             .WithMany(c => c.Replies)
             .HasForeignKey(c => c.ParentCommentId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.Entity<Report>()
+            .HasOne(r => r.Post)
+            .WithMany()
+            .HasForeignKey(r => r.PostId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.Entity<Report>()
+            .HasOne(r => r.ReporterUser)
+            .WithMany()
+            .HasForeignKey(r => r.ReporterUserId)
             .OnDelete(DeleteBehavior.NoAction);
     }
 }

@@ -256,6 +256,9 @@ namespace webChat.Migrations
                     b.Property<int>("PostId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PostId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("ProfileImage")
                         .HasColumnType("nvarchar(max)");
 
@@ -267,6 +270,8 @@ namespace webChat.Migrations
                     b.HasIndex("ParentCommentId");
 
                     b.HasIndex("PostId");
+
+                    b.HasIndex("PostId1");
 
                     b.HasIndex("UserId");
 
@@ -422,10 +427,14 @@ namespace webChat.Migrations
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("webChat.Models.Post", "Post")
-                        .WithMany("Comments")
+                        .WithMany()
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.HasOne("webChat.Models.Post", null)
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId1");
 
                     b.HasOne("webChat.Models.ApplicationUser", "User")
                         .WithMany()
@@ -444,7 +453,7 @@ namespace webChat.Migrations
                     b.HasOne("webChat.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -455,7 +464,7 @@ namespace webChat.Migrations
                     b.HasOne("webChat.Models.Post", "Post")
                         .WithMany()
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("webChat.Models.ApplicationUser", "User")
@@ -474,13 +483,13 @@ namespace webChat.Migrations
                     b.HasOne("webChat.Models.Post", "Post")
                         .WithMany()
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("webChat.Models.ApplicationUser", "ReporterUser")
                         .WithMany()
                         .HasForeignKey("ReporterUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Post");

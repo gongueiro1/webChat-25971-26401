@@ -1,0 +1,369 @@
+html {
+  font-size: 14px;
+  position: relative;
+  min-height: 100%;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* =========================
+   BASE
+========================= */
+
+body {
+  margin-bottom: 60px;
+  background-color: #f6f7f8;
+  color: #1c1c1c;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+
+.navbar {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #edeff1 !important;
+  box-shadow: none !important;
+}
+
+.navbar-brand {
+  font-weight: 600;
+  color: #1c1c1c !important;
+}
+
+.nav-link {
+  color: #1c1c1c !important;
+}
+
+.nav-link:hover {
+  color: #5f9e4f !important;
+}
+
+/* Logo Talkr. */
+
+.talkr-logo {
+  font-family: "Times New Roman", serif;
+  font-weight: 900;
+  font-size: 1.5rem;
+  letter-spacing: -1.5px;
+  color: #5f9e4f !important;
+}
+
+/* =========================
+   SIDEBAR / PILLS
+========================= */
+
+.nav-pills .nav-link {
+  color: #1c1c1c !important;
+  border-radius: 8px;
+}
+
+.nav-pills .nav-link:hover {
+  background-color: #f6f7f8;
+  color: #5f9e4f !important;
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+  background-color: #5f9e4f !important;
+  color: #ffffff !important;
+  border-color: #5f9e4f !important;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.card {
+  background-color: #ffffff;
+  border: 1px solid #edeff1 !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+
+.card:hover {
+  border-color: #d7dadc !important;
+}
+
+.card-header {
+  background-color: #5f9e4f !important;
+  border-bottom: none !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+/* Cards dos posts */
+
+.post-card-hover {
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.post-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Card clicável lateral */
+
+.card-hover {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* =========================
+   TEXT
+========================= */
+
+.text-muted {
+  color: #787c7e !important;
+}
+
+.text-secondary {
+  color: #54595d !important;
+}
+
+.text-dark {
+  color: #1c1c1c !important;
+}
+
+/* =========================
+   BUTTONS - BASE
+========================= */
+
+.btn {
+  border-radius: 999px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-primary:focus,
+.btn-primary:active:focus,
+.btn-link.nav-link:focus,
+.form-check-input:focus {
+  box-shadow: none !important;
+}
+
+.btn:focus-visible {
+  box-shadow: 0 0 0 0.06rem rgba(95, 158, 79, 0.25);
+}
+
+/* Botões verdes principais: Support ativo, Comment, Create */
+
+.btn-primary,
+.btn-create-post,
+.btn-comment {
+  background-color: #5f9e4f !important;
+  border-color: #5f9e4f !important;
+  color: #ffffff !important;
+}
+
+.btn-primary:hover,
+.btn-create-post:hover,
+.btn-comment:hover {
+  background-color: #4e853f !important;
+  border-color: #4e853f !important;
+  color: #ffffff !important;
+}
+
+.btn-primary:active,
+.btn-create-post:active,
+.btn-comment:active {
+  background-color: #3f6f33 !important;
+  border-color: #3f6f33 !important;
+  color: #ffffff !important;
+  transform: translateY(1px);
+}
+
+.btn-primary.active,
+.show > .btn-primary.dropdown-toggle {
+  background-color: #3f6f33 !important;
+  border-color: #3f6f33 !important;
+  color: #ffffff !important;
+}
+
+/* Support quando ainda não está clicado */
+
+.btn-outline-primary {
+  color: #5f9e4f !important;
+  border-color: #5f9e4f !important;
+  background-color: #ffffff !important;
+}
+
+.btn-outline-primary:hover {
+  color: #ffffff !important;
+  background-color: #5f9e4f !important;
+  border-color: #5f9e4f !important;
+}
+
+/* Botões secundários: Discuss */
+
+.btn-outline-secondary {
+  border-color: #d7dadc !important;
+  color: #54595d !important;
+  background-color: #ffffff !important;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #f6f7f8 !important;
+  border-color: #878a8c !important;
+  color: #1c1c1c !important;
+}
+
+/* Botões danger: Delete */
+
+.btn-outline-danger {
+  border-color: #dc3545 !important;
+  color: #dc3545 !important;
+  background-color: #ffffff !important;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+  color: #ffffff !important;
+}
+
+/* =========================
+   INPUTS / FORMS
+========================= */
+
+.form-control {
+  border-radius: 12px;
+  border: 1px solid #d7dadc;
+  background-color: #ffffff;
+  color: #1c1c1c;
+}
+
+.form-control:focus {
+  border-color: #878a8c;
+  box-shadow: 0 0 0 0.06rem rgba(0, 0, 0, 0.08);
+}
+
+textarea.form-control {
+  resize: none;
+}
+
+/* Placeholders */
+
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+  color: #787c7e;
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+
+/* =========================
+   PROFILE IMAGES
+========================= */
+
+.profile-avatar,
+.post-avatar,
+.comment-avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.post-avatar {
+  width: 42px;
+  height: 42px;
+}
+
+.comment-avatar {
+  width: 34px;
+  height: 34px;
+}
+
+/* =========================
+   PRIVACY PAGE
+========================= */
+
+.privacy-container {
+  max-width: 850px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.privacy-card {
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 45px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+}
+
+.privacy-card h1 {
+  font-size: 42px;
+  font-weight: 800;
+  margin-bottom: 15px;
+}
+
+.privacy-card .intro {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 35px;
+}
+
+.privacy-card section {
+  margin-bottom: 28px;
+}
+
+.privacy-card h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.privacy-card p {
+  color: #444;
+  line-height: 1.7;
+}
+
+.footer-note {
+  margin-top: 35px;
+  font-size: 14px;
+  color: #888;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer {
+  background-color: #ffffff;
+  border-top: 1px solid #edeff1 !important;
+}
+
+.comment-content {
+  white-space: pre-line;
+}
+
+/* =========================
+   REPLY
+========================= */
+
+.reply-box {
+  width: 600px;
+  max-width: 100%;
+  min-height: 80px;
+  resize: none;
+}
+
+.reply-btn {
+  min-width: 90px;
+}
