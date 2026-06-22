@@ -5,6 +5,7 @@ using webChat.Data;
 using webChat.Models;
 using Microsoft.AspNetCore.SignalR;
 using webChat.Hubs;
+using Microsoft.EntityFrameworkCore;
 
 namespace webChat.Pages.Posts;
 
@@ -30,14 +31,22 @@ public class IndexModel : PageModel
     {
         SearchString = searchString;
 
-        using var client = new HttpClient();
-        var response = await client.GetStringAsync("http://localhost:5030/api/posts");
-        
-        Posts = JsonSerializer.Deserialize<List<PostDto>>(response,
-            new JsonSerializerOptions
+        Posts = await _context.Posts
+            .OrderByDescending(p => p.CreatedAt)
+            .Select(p => new PostDto
             {
-                PropertyNameCaseInsensitive = true
-            }) ?? new List<PostDto>();
+                Id = p.Id,
+                Title = p.Title,
+                Content = p.Content,
+                AuthorName = p.User != null ? p.User.UserName : p.AuthorName,
+                CreatedAt = p.CreatedAt,
+                ProfileImage = p.User != null && p.User.ProfileImageUrl != null
+                    ? p.User.ProfileImageUrl
+                    : "/images/avatars/default-avatar.png",
+                CommentCount = _context.Comments.Count(c => c.PostId == p.Id),
+                UserId = p.UserId
+            })
+            .ToListAsync();
 
         // Filtro da Barra de Pesquisa
         if (!string.IsNullOrEmpty(SearchString))
