@@ -19,5 +19,9 @@ public class Post
     public string AuthorName { get; set; } = string.Empty;
 
     public ApplicationUser? User { get; set; }
+
     public string? ProfileImage { get; set; }
+
+    public int SupportCount { get; set; }
+    public List<Comment> Comments { get; set; } = new();
 }

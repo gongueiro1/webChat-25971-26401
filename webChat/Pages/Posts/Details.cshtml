@@ -1,0 +1,269 @@
+@page "{id:int}"
+@model webChat.Pages.Posts.DetailsModel
+@{
+    ViewData["Title"] = "Discuss";
+}
+
+<div class="container mt-4" style="max-width: 850px;">
+
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex align-items-center">
+                    <img src="@(string.IsNullOrEmpty(Model.Post.ProfileImage) ? "/images/avatars/default-avatar.png" : Model.Post.ProfileImage)"
+                         class="rounded-circle me-3"
+                         style="width: 48px; height: 48px; object-fit: cover; flex-shrink: 0;"
+                         alt="Avatar">
+                    <div>
+                        <div class="fw-bold">
+                            @Model.Post.AuthorName
+                        </div>
+                        <div class="text-muted small">
+                            @Model.Post.CreatedAt.ToString("g")
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.Post.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                {
+                    <div class="d-flex gap-2 align-items-center m-0">
+                        <a asp-page="./Edit" 
+                           asp-route-id="@Model.Post.Id" 
+                           class="btn btn-sm btn-outline-secondary rounded-pill">
+                            Edit Post
+                        </a>
+
+                        <form method="post" asp-page-handler="DeletePost" asp-route-id="@Model.Post.Id" class="m-0">
+                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" onclick="return confirm('Delete this post?');">
+                                Delete Post
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+
+            <h2 class="fw-bold mb-3">@Model.Post.Title</h2>
+            <p class="mb-0">@Model.Post.Content</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body">
+            <form method="post" id="commentForm">
+                <div class="mb-3">
+                    <textarea asp-for="NewComment" id="commentBox" class="form-control" rows="3" placeholder="Write your thoughts..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-comment rounded-pill px-4 fw-bold mt-2 text-white" style="background-color: #a4ce3a; border-color: #a4ce3a;">
+                    Comment
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="commentsContainer">
+        @if (Model.Comments.Any())
+        {
+            @foreach (var comment in Model.Comments)
+            {
+                <div class="card shadow-sm border-0 rounded-4 mb-3">
+                    <div class="card-body">
+
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="@(comment.User?.ProfileImageUrl ?? "/images/avatars/default-avatar.png")"
+                                 class="comment-avatar me-2 rounded-circle" style="width: 36px; height: 36px; object-fit: cover;" />
+                            <div>
+                                <div class="fw-bold">@(comment.User?.UserName ?? "Unknown")</div>
+                                <div class="text-muted small">@comment.CreatedAt.ToString("g")</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="mt-2 w-100">
+                                <p class="mb-2 comment-content">@comment.Content</p>
+
+                                <button type="button" class="btn btn-link btn-sm text-decoration-none reply-toggle p-0" onclick="document.getElementById('reply-@comment.Id').classList.toggle('d-none')">
+                                    Reply ▼
+                                </button>
+
+                                <div id="reply-@comment.Id" class="d-none mt-3">
+                                    <form class="ajax-reply-form" data-comment-id="@comment.Id">
+                                        @Html.AntiForgeryToken()
+                                        <textarea name="ReplyContent" id="replyBox-@comment.Id" class="form-control mb-2 reply-box" rows="3" placeholder="Write a reply..." style="max-width: 600px;"></textarea>
+                                        <button type="submit" class="btn btn-sm text-white rounded-pill px-3 reply-submit" style="background-color: #a4ce3a; border-color: #a4ce3a;">
+                                            Reply
+                                        </button>
+                                    </form>
+
+                                    @if (comment.Replies.Any())
+                                    {
+                                        <div class="ms-4 mt-3 border-start ps-3">
+                                            @foreach (var reply in comment.Replies.OrderBy(r => r.CreatedAt))
+                                            {
+                                                <div class="mb-3 d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <div class="fw-bold">@(reply.User?.UserName ?? "Unknown")</div>
+                                                        <div class="text-muted small">@reply.CreatedAt.ToString("g")</div>
+                                                        <div class="comment-content mt-1">@reply.Content</div>
+                                                    </div>
+
+                                                    @if (User.Identity?.IsAuthenticated == true && reply.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                                                    {
+                                                        <form method="post" asp-page-handler="DeleteReply" asp-route-replyId="@reply.Id" asp-route-id="@Model.Post.Id">
+                                                            <button type="submit" class="btn btn-sm text-danger border-0 bg-transparent p-0 ms-3" onclick="return confirm('Delete this reply?');">
+                                                                Delete
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                    <div class="ajax-replies mt-3"></div>
+                                </div>
+                            </div>
+
+                            @if (User.Identity?.IsAuthenticated == true && comment.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                            {
+                                <form method="post" asp-page-handler="DeleteComment" asp-route-commentId="@comment.Id" asp-route-id="@Model.Post.Id">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill ms-3">
+                                        Delete
+                                    </button>
+                                </form>
+                            }
+                        </div>
+
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const commentForm = document.getElementById("commentForm");
+        const commentBox = document.getElementById("commentBox");
+
+        if (!commentForm || !commentBox) return;
+
+        async function submitComment() {
+            const text = commentBox.value.trim();
+            if (text.length === 0) return;
+
+            const formData = new FormData(commentForm);
+
+            const response = await fetch(
+                "?handler=CommentAjax&id=@Model.Post.Id",
+                {
+                    method: "POST",
+                    body: formData
+                });
+
+            const data = await response.json();
+            if (!data.success) return;
+
+            commentBox.value = "";
+            const container = document.getElementById("commentsContainer");
+
+            container.insertAdjacentHTML(
+                "afterbegin",
+                `
+                <div class="card shadow-sm border-0 rounded-4 mb-3">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="${data.avatar}" class="comment-avatar me-2 rounded-circle" style="width: 36px; height: 36px; object-fit: cover;" />
+                            <div>
+                                <div class="fw-bold">${data.username}</div>
+                                <div class="text-muted small">${data.date}</div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="mt-2 w-100">
+                                <p class="mb-2 comment-content">${data.content}</p>
+                                <button type="button" class="btn btn-link btn-sm text-decoration-none p-0" onclick="document.getElementById('reply-${data.commentId}').classList.toggle('d-none')">
+                                    Reply ▼
+                                </button>
+                                <div id="reply-${data.commentId}" class="d-none mt-3">
+                                    <form class="ajax-reply-form" data-comment-id="${data.commentId}">
+                                        @Html.AntiForgeryToken()
+                                        <textarea name="ReplyContent" class="form-control mb-2" rows="3" placeholder="Write a reply..." style="max-width: 600px;"></textarea>
+                                        <button type="submit" class="btn btn-sm text-white rounded-pill px-3" style="background-color: #a4ce3a; border-color: #a4ce3a;">
+                                            Reply
+                                        </button>
+                                    </form>
+                                    <div class="ajax-replies mt-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `
+            );
+        }
+
+        commentBox.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                submitComment();
+            }
+        });
+
+        commentForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            submitComment();
+        });
+
+        document.addEventListener("submit", async function (e) {
+            const form = e.target;
+            if (!form.classList.contains("ajax-reply-form")) return;
+
+            e.preventDefault();
+            const commentId = form.dataset.commentId;
+            const textarea = form.querySelector("textarea");
+            const content = textarea.value.trim();
+
+            if (!content) return;
+
+            const formData = new FormData(form);
+            const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            const response = await fetch(
+                `/Posts/Details/@Model.Post.Id?handler=ReplyAjax&id=@Model.Post.Id&parentCommentId=${commentId}`,
+                {
+                    method: "POST",
+                    headers: { "RequestVerificationToken": token },
+                    body: formData
+                });
+
+            const data = await response.json();
+            if (!data.success) return;
+
+            textarea.value = "";
+            const repliesContainer = form.parentElement.querySelector(".ajax-replies");
+            
+            repliesContainer.insertAdjacentHTML(
+                "beforeend",
+                `
+                <div class="ms-4 mt-3 border-start ps-3 d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="fw-bold">${data.username}</div>
+                        <div class="text-muted small">${data.date}</div>
+                        <div class="comment-content mt-1">${data.content}</div>
+                    </div>
+                </div>
+                `
+            );
+        });
+        
+        document.addEventListener("keydown", function (e) {
+            if (!e.target.matches(".ajax-reply-form textarea")) return;
+
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                e.target.closest("form").requestSubmit();
+            }
+        });
+    });
+</script>
+}

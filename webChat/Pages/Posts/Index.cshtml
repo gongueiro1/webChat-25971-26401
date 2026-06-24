@@ -6,15 +6,13 @@
 
 <div class="container mt-4">
     <div class="row">
-
-        <div class="col-md-8">
-
+        <div class="col-lg-8">
             @if (Model.Posts == null || !Model.Posts.Any())
             {
-                <div class="card shadow-sm border-0 rounded-3 text-center py-5">
+                <div class="card shadow-sm border-0 rounded-4 text-center py-5">
                     <div class="card-body text-muted">
                         <h5 class="fw-bold">No posts found.</h5>
-                        <p>Be the first to break the ice and share something!</p>
+                        <p>Be the first to share something.</p>
                     </div>
                 </div>
             }
@@ -22,111 +20,86 @@
             {
                 @foreach (var post in Model.Posts)
                 {
-                    <div class="card mb-3 shadow-sm border-0 rounded-3">
-                        <div class="card-body">
+                    <div class="card mb-3 shadow-sm border-0 rounded-4 post-card-hover">
+                        <a asp-page="./Details"
+                           asp-route-id="@post.Id"
+                           class="text-decoration-none text-dark">
+                            
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <img src="@post.ProfileImage" 
+                                         class="post-avatar me-2 rounded-circle" 
+                                         style="width: 36px; height: 36px; object-fit: cover; flex-shrink: 0;" />
 
-                            <div class="text-muted small mb-2 d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center">
-                                    <img src="@(string.IsNullOrEmpty(post.ProfileImage) ? "/images/default-avatar.png" : post.ProfileImage)"
-                                         alt="Avatar"
-                                         class="rounded-circle me-2"
-                                         style="width: 28px; height: 28px; object-fit: cover;" />
-
-                                    <span>
-                                        Posted by
-                                        <span class="fw-bold text-dark">
-                                            @(string.IsNullOrEmpty(post.AuthorName) ? "Anónimo" : post.AuthorName)
-                                        </span>
-                                        • há @Math.Round((DateTime.UtcNow - post.CreatedAt).TotalHours) horas
-                                    </span>
+                                    <div>
+                                        <div class="small text-muted">
+                                            Posted by
+                                            <span class="fw-bold text-dark">
+                                                @post.AuthorName
+                                            </span>
+                                            • @post.TimeAgo
+                                        </div>
+                                    </div>
                                 </div>
 
-                                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                                <h3 class="fw-bold">@post.Title</h3>
+                                <p class="mb-0 mt-3">@post.Content</p>
+                            </div>
+                        </a>
+
+                        <div class="px-3 pb-3">
+                            <hr />
+                            <div class="d-flex gap-2 flex-wrap">
+                                
+                                <form method="post" asp-page-handler="Support" asp-route-id="@post.Id">
+                                    <button type="submit" 
+                                            class="btn btn-sm px-4 rounded-pill fw-bold transition-all @(post.IsSupportedByCurrentUser ? "btn-primary" : "btn-outline-primary")">
+                                        Support · @post.FormattedSupportCount
+                                    </button>
+                                </form>
+
+                                <a asp-page="./Details"
+                                   asp-route-id="@post.Id"
+                                   class="btn btn-sm btn-outline-secondary px-4 rounded-pill">
+                                    Discuss · @post.CommentCount
+                                </a>
+
+                                @if (User.Identity?.IsAuthenticated == true &&
+                                     post.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
                                 {
-                                    <div class="dropdown">
-                                        <button class="btn btn-link btn-sm text-muted p-0"
-                                                type="button"
-                                                data-bs-toggle="dropdown"
-                                                aria-expanded="false">
-                                            <i class="bi bi-three-dots fs-5"></i>
+                                    <form method="post" asp-page-handler="DeletePost" asp-route-id="@post.Id">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger rounded-pill"
+                                                onclick="return confirm('Tens a certeza que queres apagar este post?');">
+                                            Delete
                                         </button>
-
-                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
-
-                                            @if (User.Identity.Name == post.AuthorName)
-                                            {
-                                                <li>
-                                                    <a class="dropdown-item" asp-page="./Edit" asp-route-id="@post.Id">
-                                                        <i class="bi bi-pencil-square me-2 text-primary"></i>Editar
-                                                    </a>
-                                                </li>
-
-                                                <li>
-                                                    <a class="dropdown-item text-danger" asp-page="./Delete" asp-route-id="@post.Id">
-                                                        <i class="bi bi-trash3 me-2"></i>Eliminar
-                                                    </a>
-                                                </li>
-
-                                                <li><hr class="dropdown-divider" /></li>
-                                            }
-
-                                            <li>
-                                                <a class="dropdown-item text-warning" asp-page="./Report" asp-route-id="@post.Id">
-                                                    <i class="bi bi-flag me-2"></i>Denunciar
-                                                </a>
-                                            </li>
-
-                                        </ul>
-                                    </div>
+                                    </form>
                                 }
                             </div>
-
-                            <h5 class="card-title fw-bold text-dark mb-1">@post.Title</h5>
-                            <p class="card-text text-secondary mb-3">@post.Content</p>
-
-                            <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-2">
-                                <div>
-                                    <button class="btn btn-sm btn-outline-secondary px-3">
-                                        <i class="bi bi-caret-up-fill"></i> Upvote
-                                    </button>
-
-                                    <button class="btn btn-sm btn-outline-secondary px-3">
-                                        <i class="bi bi-caret-down-fill"></i> Downvote
-                                    </button>
-                                </div>
-
-                                <div class="text-muted small">
-                                    <i class="bi bi-chat-left-text"></i> Comentários
-                                </div>
-                            </div>
-
                         </div>
                     </div>
                 }
             }
-
         </div>
 
-        <div class="col-md-4">
-            <a asp-area=""
-               asp-page="/Privacy"
-               class="card shadow-sm border-0 rounded-3 bg-light sticky-top text-decoration-none text-dark d-block"
-               style="top: 20px;">
-
+        <div class="col-lg-4">
+            
+            <a asp-area="" asp-page="/Privacy" 
+               class="card border-0 shadow-sm rounded-4 mb-3 text-decoration-none text-dark card-hover d-block" 
+               style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
                 <div class="card-body">
-                    <h6 class="card-title fw-bold">Sobre o Talkr.</h6>
-
-                    <p class="card-text text-muted small">
+                    <h3 class="fw-bold fs-4">Sobre o Talkr.</h3>
+                    <p class="text-secondary mb-0">
                         The forum where you can share your thoughts on your favorite topics!
                     </p>
                 </div>
             </a>
 
             <a asp-page="./Create"
-               class="btn btn-primary w-100 fw-bold mt-2">
+               class="btn btn-create-post w-100 py-2 rounded-pill fw-bold">
                 Create new post
             </a>
-        </div>
 
+        </div>
     </div>
 </div>

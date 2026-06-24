@@ -14,13 +14,33 @@
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container">
-            <a class="navbar-brand talkr-logo" asp-area="" asp-page="/Index">Talkr.</a>
+            <a class="navbar-brand talkr-logo fw-bold" asp-area="" asp-page="/Index">Talkr.</a>
+            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
-                <partial name="_LoginPartial"/>
+            
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between align-items-center w-100">
+                
+                <form class="d-flex mx-auto px-3 my-2 my-sm-0" method="get" asp-area="" asp-page="/Posts/Index" style="max-width: 500px; width: 100%;">
+                    <input class="form-control me-2 rounded-pill border-0 shadow-sm bg-light" 
+                           type="search" 
+                           placeholder="Search topics, words or posts..." 
+                           name="searchString" 
+                           value="@Context.Request.Query["searchString"]">
+                           
+                    <button class="btn rounded-pill px-4 fw-bold text-white shadow-sm" 
+                            type="submit" 
+                            style="background-color: #a4ce3a; border-color: #a4ce3a;">
+                        Search
+                    </button>
+                </form>
+
+                <div class="d-flex justify-content-end">
+                    <partial name="_LoginPartial"/>
+                </div>
+                
             </div>
         </div>
     </nav>
