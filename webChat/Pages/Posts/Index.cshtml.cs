@@ -137,4 +137,36 @@ public class IndexModel : PageModel
         public string TimeAgo { get; set; } = "";
         public int CommentCount { get; set; }
     }
+    
+    public async Task<IActionResult> OnPostDeletePostAsync(int id)
+    {
+        // 1. Procurar o post na base de dados local
+        var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == id);
+        if (post == null) 
+        {
+            return NotFound();
+        }
+
+        // 2. Garantir que quem está a apagar é o dono do post
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (post.UserId != userId) 
+        {
+            return Forbid();
+        }
+
+        // 3. Limpar o "lixo" associado a este post (comentários e likes/supports)
+        var comments = await _context.Comments.Where(c => c.PostId == id).ToListAsync();
+        _context.Comments.RemoveRange(comments);
+
+        var supports = await _context.PostSupports.Where(s => s.PostId == id).ToListAsync();
+        _context.PostSupports.RemoveRange(supports);
+
+        // 4. Apagar o post definitivamente
+        _context.Posts.Remove(post);
+        await _context.SaveChangesAsync();
+
+        // 5. O SEGREDO: Obrigar a página a fazer reload para carregar os restantes posts!
+        return RedirectToPage("./Index");
+    }   
 }
+
