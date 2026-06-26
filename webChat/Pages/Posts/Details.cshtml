@@ -58,7 +58,7 @@
         {
             @foreach (var comment in Model.Comments)
             {
-                <div class="card shadow-sm border-0 rounded-4 mb-3">
+                <div class="card shadow-sm border-0 rounded-4 mb-3 comment-card" data-comment-id="@comment.Id">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-3">
                             <img src="@(comment.User?.ProfileImageUrl ?? "/images/avatars/default-avatar.png")"
@@ -91,7 +91,7 @@
                                         <div class="ms-4 mt-3 border-start ps-3">
                                             @foreach (var reply in comment.Replies.OrderBy(r => r.CreatedAt))
                                             {
-                                                <div class="mb-3 d-flex justify-content-between align-items-start">
+                                                <div class="mb-3 d-flex justify-content-between align-items-start reply-card" data-reply-id="@reply.Id">
                                                     <div>
                                                         <div class="fw-bold">@(reply.User?.UserName ?? "Unknown")</div>
                                                         <div class="text-muted small">@reply.CreatedAt.ToString("g")</div>
@@ -100,11 +100,11 @@
 
                                                     @if (User.Identity?.IsAuthenticated == true && reply.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
                                                     {
-                                                        <form method="post" asp-page-handler="DeleteReply" asp-route-replyId="@reply.Id" asp-route-id="@Model.Post.Id">
-                                                            <button type="submit" class="btn btn-sm text-danger border-0 bg-transparent p-0 ms-3" onclick="return confirm('Delete this reply?');">
-                                                                Delete
-                                                            </button>
-                                                        </form>
+                                                        <button type="button"
+                                                                class="btn btn-sm text-danger border-0 bg-transparent p-0 ms-3 ajax-delete-reply"
+                                                                data-reply-id="@reply.Id">
+                                                            Delete
+                                                        </button>
                                                     }
                                                 </div>
                                             }
@@ -135,25 +135,24 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        
+
         // --- 1. SETUP DO SIGNALR ---
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/chatHub")
             .build();
 
         connection.start().then(function () {
-            // Entra na sala específica deste Post
             connection.invoke("JoinPostGroup", @Model.Post.Id);
         }).catch(err => console.error(err.toString()));
 
-        // Guardar o username atual para não duplicar os comentários no próprio ecrã
         const currentUser = '@(User.Identity?.Name ?? "")';
 
-        // Ouvir novos Comentários
+        // Ouvir novos Comentários de outros users
         connection.on("ReceiveComment", function (data) {
-            if (data.username === currentUser) return; // Se fui eu que escrevi, o AJAX já tratou!
+            if (data.username === currentUser) return;
 
             const container = document.getElementById("commentsContainer");
+
             container.insertAdjacentHTML("afterbegin", `
                 <div class="card shadow-sm border-0 rounded-4 mb-3" style="background-color: #f8f9fa; transition: 0.5s;">
                     <div class="card-body">
@@ -164,12 +163,15 @@
                                 <div class="text-muted small">${data.date}</div>
                             </div>
                         </div>
+
                         <div class="d-flex justify-content-between align-items-start">
                             <div class="mt-2 w-100">
                                 <p class="mb-2 comment-content">${data.content}</p>
+
                                 <button type="button" class="btn btn-link btn-sm text-decoration-none p-0" onclick="document.getElementById('reply-${data.commentId}').classList.toggle('d-none')">
                                     Reply ▼
                                 </button>
+
                                 <div id="reply-${data.commentId}" class="d-none mt-3">
                                     <form class="ajax-reply-form" data-comment-id="${data.commentId}">
                                         @Html.AntiForgeryToken()
@@ -178,6 +180,7 @@
                                             Reply
                                         </button>
                                     </form>
+
                                     <div class="ajax-replies mt-3"></div>
                                 </div>
                             </div>
@@ -187,13 +190,15 @@
             `);
         });
 
-        // Ouvir novas Respostas
+        // Ouvir novas Respostas de outros users
         connection.on("ReceiveReply", function (data) {
-            if (data.username === currentUser) return; // Se fui eu que escrevi, o AJAX já tratou!
+            if (data.username === currentUser) return;
 
             const form = document.querySelector(`.ajax-reply-form[data-comment-id="${data.parentCommentId}"]`);
+
             if (form) {
                 const repliesContainer = form.parentElement.querySelector(".ajax-replies");
+
                 repliesContainer.insertAdjacentHTML("beforeend", `
                     <div class="ms-4 mt-3 border-start ps-3 d-flex justify-content-between align-items-start" style="background-color: #f8f9fa; transition: 0.5s;">
                         <div>
@@ -206,7 +211,7 @@
             }
         });
 
-        // --- 2. CÓDIGO AJAX DO TEU COLEGA (INTACTO) ---
+        // --- 2. COMMENT AJAX ---
         const commentForm = document.getElementById("commentForm");
         const commentBox = document.getElementById("commentBox");
 
@@ -216,16 +221,21 @@
                 if (text.length === 0) return;
 
                 const formData = new FormData(commentForm);
-                const response = await fetch("?handler=CommentAjax&id=@Model.Post.Id", { method: "POST", body: formData });
+
+                const response = await fetch("?handler=CommentAjax&id=@Model.Post.Id", {
+                    method: "POST",
+                    body: formData
+                });
+
                 const data = await response.json();
-                
                 if (!data.success) return;
 
                 commentBox.value = "";
+
                 const container = document.getElementById("commentsContainer");
 
                 container.insertAdjacentHTML("afterbegin", `
-                    <div class="card shadow-sm border-0 rounded-4 mb-3">
+                    <div class="card shadow-sm border-0 rounded-4 mb-3 comment-card" data-comment-id="${data.commentId}">
                         <div class="card-body">
                             <div class="d-flex align-items-center mb-3">
                                 <img src="${data.avatar}" class="comment-avatar me-2 rounded-circle" style="width: 36px; height: 36px; object-fit: cover;" />
@@ -234,12 +244,15 @@
                                     <div class="text-muted small">${data.date}</div>
                                 </div>
                             </div>
+
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="mt-2 w-100">
                                     <p class="mb-2 comment-content">${data.content}</p>
+
                                     <button type="button" class="btn btn-link btn-sm text-decoration-none p-0" onclick="document.getElementById('reply-${data.commentId}').classList.toggle('d-none')">
                                         Reply ▼
                                     </button>
+
                                     <div id="reply-${data.commentId}" class="d-none mt-3">
                                         <form class="ajax-reply-form" data-comment-id="${data.commentId}">
                                             @Html.AntiForgeryToken()
@@ -248,9 +261,19 @@
                                                 Reply
                                             </button>
                                         </form>
+
                                         <div class="ajax-replies mt-3"></div>
                                     </div>
                                 </div>
+
+                                <form method="post" action="?handler=DeleteComment&commentId=${data.commentId}&id=@Model.Post.Id">
+                                    @Html.AntiForgeryToken()
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger rounded-pill ms-3 ajax-delete-comment"
+                                            data-comment-id="${data.commentId}">
+                                        Delete
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -270,11 +293,14 @@
             });
         }
 
+        // --- 3. REPLY AJAX ---
         document.addEventListener("submit", async function (e) {
             const form = e.target;
+
             if (!form.classList.contains("ajax-reply-form")) return;
 
             e.preventDefault();
+
             const commentId = form.dataset.commentId;
             const textarea = form.querySelector("textarea");
             const content = textarea.value.trim();
@@ -286,7 +312,9 @@
 
             const response = await fetch(`/Posts/Details/@Model.Post.Id?handler=ReplyAjax&id=@Model.Post.Id&parentCommentId=${commentId}`, {
                 method: "POST",
-                headers: { "RequestVerificationToken": token },
+                headers: {
+                    "RequestVerificationToken": token
+                },
                 body: formData
             });
 
@@ -294,26 +322,80 @@
             if (!data.success) return;
 
             textarea.value = "";
+
             const repliesContainer = form.parentElement.querySelector(".ajax-replies");
-            
+
             repliesContainer.insertAdjacentHTML("beforeend", `
-                <div class="ms-4 mt-3 border-start ps-3 d-flex justify-content-between align-items-start">
+                <div class="ms-4 mt-3 border-start ps-3 d-flex justify-content-between align-items-start reply-card" data-reply-id="${data.commentId}">
                     <div>
                         <div class="fw-bold">${data.username}</div>
                         <div class="text-muted small">${data.date}</div>
                         <div class="comment-content mt-1">${data.content}</div>
                     </div>
+
+                    <button type="button"
+                            class="btn btn-sm text-danger border-0 bg-transparent p-0 ms-3 ajax-delete-reply"
+                            data-reply-id="${data.commentId}">
+                        Delete
+                    </button>
                 </div>
             `);
         });
-        
+
         document.addEventListener("keydown", function (e) {
             if (!e.target.matches(".ajax-reply-form textarea")) return;
+
             if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 e.target.closest("form").requestSubmit();
             }
         });
+        document.addEventListener("click", async function (e) {
+            const commentButton = e.target.closest(".ajax-delete-comment");
+            const replyButton = e.target.closest(".ajax-delete-reply");
+
+            if (commentButton) {
+                if (!confirm("Delete this comment?")) return;
+
+                const commentId = commentButton.dataset.commentId;
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                const response = await fetch(`/Posts/Details/@Model.Post.Id?handler=DeleteCommentAjax&commentId=${commentId}`, {
+                    method: "POST",
+                    headers: {
+                        "RequestVerificationToken": token
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    commentButton.closest(".comment-card").remove();
+                }
+
+                return;
+            }
+
+            if (replyButton) {
+                if (!confirm("Delete this reply?")) return;
+
+                const replyId = replyButton.dataset.replyId;
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                const response = await fetch(`/Posts/Details/@Model.Post.Id?handler=DeleteReplyAjax&replyId=${replyId}`, {
+                    method: "POST",
+                    headers: {
+                        "RequestVerificationToken": token
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    replyButton.closest(".reply-card").remove();
+                }
+            }
+});
     });
 </script>
 }

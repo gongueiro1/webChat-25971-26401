@@ -18,4 +18,13 @@
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="publish-linux\web.config" />
+      <_ContentIncludedByDefault Remove="publish-linux\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="publish-linux\appsettings.json" />
+      <_ContentIncludedByDefault Remove="publish-linux\webChat.deps.json" />
+      <_ContentIncludedByDefault Remove="publish-linux\webChat.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="publish-linux\webChat.staticwebassets.endpoints.json" />
+    </ItemGroup>
+
 </Project>

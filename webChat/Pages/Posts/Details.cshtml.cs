@@ -192,6 +192,7 @@ public class DetailsModel : PageModel
         });
 
         return new JsonResult(new
+            
         {
             success = true,
             commentId = comment.Id,
@@ -219,9 +220,10 @@ public class DetailsModel : PageModel
         _context.Comments.Add(reply);
         await _context.SaveChangesAsync();
 
-        // --- MAGIA SIGNALR PARA RESPOSTAS ---
+        // --- SIGNALR PARA RESPOSTAS ---
         await _hubContext.Clients.Group($"Post_{id}").SendAsync("ReceiveReply", new
         {
+            commentId = reply.Id,
             parentCommentId = parentCommentId,
             username = user.UserName,
             content = reply.Content,
@@ -237,5 +239,47 @@ public class DetailsModel : PageModel
             content = reply.Content,
             date = reply.CreatedAt.ToString("g")
         });
+        
+        
+    }
+    public async Task<IActionResult> OnPostDeleteCommentAjaxAsync(int commentId)
+    {
+        var comment = await _context.Comments
+            .Include(c => c.Replies)
+            .FirstOrDefaultAsync(c => c.Id == commentId);
+
+        if (comment == null)
+            return new JsonResult(new { success = false });
+
+        var userId = _userManager.GetUserId(User);
+
+        if (comment.UserId != userId)
+            return new JsonResult(new { success = false });
+
+        if (comment.Replies.Any())
+            _context.Comments.RemoveRange(comment.Replies);
+
+        _context.Comments.Remove(comment);
+        await _context.SaveChangesAsync();
+
+        return new JsonResult(new { success = true });
+    }
+
+    public async Task<IActionResult> OnPostDeleteReplyAjaxAsync(int replyId)
+    {
+        var reply = await _context.Comments.FindAsync(replyId);
+
+        if (reply == null)
+            return new JsonResult(new { success = false });
+
+        var userId = _userManager.GetUserId(User);
+
+        if (reply.UserId != userId)
+            return new JsonResult(new { success = false });
+
+        _context.Comments.Remove(reply);
+        await _context.SaveChangesAsync();
+
+        return new JsonResult(new { success = true });
     }
 }
