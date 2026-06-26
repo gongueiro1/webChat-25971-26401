@@ -1,0 +1,52 @@
+@page "{id:int}"
+@model webChat.Pages.Posts.EditModel
+@{
+    ViewData["Title"] = "Edit Post";
+}
+
+<div class="container mt-4" style="max-width: 850px;">
+    
+    <div class="card shadow-sm border-0 rounded-4">
+        
+        <div class="card-body p-4">
+            
+            <h2 class="fw-bold mb-4">Edit Post</h2>
+
+            <form method="post">
+                
+                <!-- ID escondido para o C# saber que post estamos a editar -->
+                <input type="hidden" asp-for="Post.Id" />
+                
+                <div class="mb-4">
+                    <label asp-for="Post.Title" class="form-label fw-bold">Title</label>
+                    <input asp-for="Post.Title" class="form-control rounded-3" />
+                    <span asp-validation-for="Post.Title" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Post.Content" class="form-label fw-bold">Content</label>
+                    <textarea asp-for="Post.Content" class="form-control rounded-3" rows="6"></textarea>
+                    <span asp-validation-for="Post.Content" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-2 mt-2">
+                    <button type="submit" class="btn text-white rounded-pill px-4 fw-bold" style="background-color: #a4ce3a; border-color: #a4ce3a;">
+                        Save Changes
+                    </button>
+                    
+                    <a asp-page="./Details" asp-route-id="@Model.Post.Id" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+            
+        </div>
+        
+    </div>
+    
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

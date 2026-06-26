@@ -12,8 +12,8 @@ using webChat.Data;
 namespace webChat.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260512151741_AddProfileImageUrl")]
-    partial class AddProfileImageUrl
+    [Migration("20260618153216_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -238,6 +238,10 @@ namespace webChat.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AuthorName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -246,15 +250,33 @@ namespace webChat.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ParentCommentId")
+                        .HasColumnType("int");
+
                     b.Property<int>("PostId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
+                    b.Property<int?>("PostId1")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProfileImage")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ParentCommentId");
+
                     b.HasIndex("PostId");
+
+                    b.HasIndex("PostId1");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Comments");
                 });
@@ -281,6 +303,9 @@ namespace webChat.Migrations
                     b.Property<string>("ProfileImage")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("SupportCount")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -296,7 +321,7 @@ namespace webChat.Migrations
                     b.ToTable("Posts");
                 });
 
-            modelBuilder.Entity("webChat.Models.PostLike", b =>
+            modelBuilder.Entity("webChat.Models.PostSupport", b =>
                 {
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -304,15 +329,46 @@ namespace webChat.Migrations
                     b.Property<int>("PostId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsUpvote")
-                        .HasColumnType("bit");
-
                     b.HasKey("UserId", "PostId");
 
-                    b.ToTable("PostLikes");
+                    b.HasIndex("PostId");
+
+                    b.ToTable("PostSupports");
+                });
+
+            modelBuilder.Entity("webChat.Models.Report", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReporterUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("ReporterUserId");
+
+                    b.ToTable("Reports");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -368,13 +424,31 @@ namespace webChat.Migrations
 
             modelBuilder.Entity("webChat.Models.Comment", b =>
                 {
+                    b.HasOne("webChat.Models.Comment", "ParentComment")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentCommentId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.HasOne("webChat.Models.Post", "Post")
                         .WithMany()
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("webChat.Models.Post", null)
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId1");
+
+                    b.HasOne("webChat.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("ParentComment");
+
                     b.Navigation("Post");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("webChat.Models.Post", b =>
@@ -382,10 +456,58 @@ namespace webChat.Migrations
                     b.HasOne("webChat.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("webChat.Models.PostSupport", b =>
+                {
+                    b.HasOne("webChat.Models.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("webChat.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("webChat.Models.Report", b =>
+                {
+                    b.HasOne("webChat.Models.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("webChat.Models.ApplicationUser", "ReporterUser")
+                        .WithMany()
+                        .HasForeignKey("ReporterUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("ReporterUser");
+                });
+
+            modelBuilder.Entity("webChat.Models.Comment", b =>
+                {
+                    b.Navigation("Replies");
+                });
+
+            modelBuilder.Entity("webChat.Models.Post", b =>
+                {
+                    b.Navigation("Comments");
                 });
 #pragma warning restore 612, 618
         }

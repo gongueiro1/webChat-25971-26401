@@ -21,6 +21,7 @@ public class PostsController : ControllerBase
         var posts = await _context.Posts
             .Include(p => p.User)
             .OrderByDescending(p => p.CreatedAt)
+            .Include(p => p.Comments)
             .Select(p => new
             {
                 p.Id,
@@ -28,6 +29,7 @@ public class PostsController : ControllerBase
                 p.Content,
                 AuthorName = p.User != null ? p.User.UserName : p.AuthorName,
                 p.CreatedAt,
+                CommentCount = _context.Comments.Count(c => c.PostId == p.Id),
                 ProfileImage = p.User != null && p.User.ProfileImageUrl != null
                     ? p.User.ProfileImageUrl
                     : "/images/avatars/default-avatar.png"
